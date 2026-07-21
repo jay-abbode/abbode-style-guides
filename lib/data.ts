@@ -96,28 +96,37 @@ export async function getSpecPage(specId: string) {
   return { spec, template, rules: resolveRules(spec, ctx, rules) };
 }
 
-/** The full matrix: products (rows) x templates (cols) with cell state. */
+/** The full matrix: products (rows) x templates (cols) with cell state.
+ *  Returns a serializable cells map keyed by `${product_id}|${template_id}`
+ *  so it can be handed to a client component. */
 export async function getMatrixGrid() {
   const [products, templates, matrix] = await Promise.all([
     getProducts(),
     getTemplates(),
     getMatrix(),
   ]);
-  const rows = products.filter(isActive);
-  const cols = templates.filter(isActive);
-  const cellAt = (pid: string, tid: string) =>
-    matrix.find(
-      (m) => m.product_id === pid && m.template_id === tid && isActive(m),
-    );
-  return {
-    products: rows,
-    templates: cols,
-    cell: (pid: string, tid: string) => {
-      const m = cellAt(pid, tid);
-      if (!m) return { offered: false, live: false, spec_id: "" };
-      return { offered: true, live: yes(m.live), spec_id: m.spec_id };
-    },
-  };
+  const rows = products.filter(isActive).map((p) => ({
+    product_id: p.product_id,
+    product_name: p.product_name,
+  }));
+  const cols = templates.filter(isActive).map((t) => ({
+    template_id: t.template_id,
+    template_name: t.template_name,
+  }));
+  const cells: Record<
+    string,
+    { offered: boolean; live: boolean; spec_id: string; char_limit: string }
+  > = {};
+  for (const m of matrix) {
+    if (!isActive(m)) continue;
+    cells[`${m.product_id}|${m.template_id}`] = {
+      offered: true,
+      live: yes(m.live),
+      spec_id: m.spec_id,
+      char_limit: m.char_limit ?? "",
+    };
+  }
+  return { products: rows, templates: cols, cells };
 }
 
 /** A merged product x template cell, ready to render. */
