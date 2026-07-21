@@ -1,0 +1,6 @@
+node_modules
+.next
+.env*.local
+google-credentials.json
+*.log
+.DS_Store
