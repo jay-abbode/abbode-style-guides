@@ -5,14 +5,17 @@ import Link from "next/link";
 export function PageShell({
   children,
   back,
+  wide,
 }: {
   children: React.ReactNode;
   back?: { href: string; label: string };
+  wide?: boolean;
 }) {
+  const maxw = wide ? "max-w-7xl" : "max-w-4xl";
   return (
     <div className="min-h-screen bg-porcelain">
       <header className="border-b border-cream-200">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+        <div className={`mx-auto flex ${maxw} items-center justify-between px-6 py-4`}>
           <Link href="/" className="focus-ring inline-flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/abbode-wordmark.png" alt="abbode" className="h-6 w-auto" />
@@ -30,7 +33,7 @@ export function PageShell({
           )}
         </div>
       </header>
-      <main className="mx-auto max-w-4xl px-6 py-10">{children}</main>
+      <main className={`mx-auto ${maxw} px-6 py-10`}>{children}</main>
     </div>
   );
 }

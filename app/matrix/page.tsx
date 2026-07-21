@@ -8,7 +8,7 @@ export default async function MatrixPage() {
   const grid = await getMatrixGrid();
 
   return (
-    <PageShell back={{ href: "/", label: "Home" }}>
+    <PageShell wide back={{ href: "/", label: "Home" }}>
       <Overline>Matrix</Overline>
       <h1 className="font-display mt-2 text-3xl font-medium leading-tight tracking-tight text-plum">
         Product × template grid
@@ -22,19 +22,17 @@ export default async function MatrixPage() {
           Add products and templates to the Sheet to build the grid.
         </p>
       ) : (
-        <div className="mt-8 overflow-x-auto">
+        <div className="mt-8 -mx-6 overflow-x-auto px-6">
           <table className="border-separate border-spacing-1">
             <thead>
               <tr>
-                <th className="sticky left-0 bg-porcelain" />
+                <th className="sticky left-0 z-10 bg-porcelain" />
                 {grid.templates.map((t) => (
                   <th
                     key={t.template_id}
-                    className="font-ui px-2 pb-2 align-bottom text-xs font-semibold text-berry"
+                    className="font-ui w-[76px] px-1 pb-2 align-bottom text-center text-[11px] font-semibold leading-tight text-berry"
                   >
-                    <span className="block whitespace-nowrap">
-                      {t.template_name}
-                    </span>
+                    {t.template_name}
                   </th>
                 ))}
               </tr>
@@ -42,15 +40,13 @@ export default async function MatrixPage() {
             <tbody>
               {grid.products.map((p) => (
                 <tr key={p.product_id}>
-                  <th className="font-ui sticky left-0 bg-porcelain pr-3 text-right text-xs font-semibold text-olive">
-                    <span className="block whitespace-nowrap">
-                      {p.product_name}
-                    </span>
+                  <th className="font-ui sticky left-0 z-10 w-40 bg-porcelain pr-3 text-right align-middle text-[11px] font-semibold leading-tight text-olive">
+                    {p.product_name}
                   </th>
                   {grid.templates.map((t) => {
                     const c = grid.cell(p.product_id, t.template_id);
                     const base =
-                      "flex h-10 w-16 items-center justify-center rounded-lg text-xs";
+                      "flex h-10 w-[76px] items-center justify-center rounded-lg text-xs";
                     if (c.live) {
                       return (
                         <td key={t.template_id}>
