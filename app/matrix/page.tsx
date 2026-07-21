@@ -10,7 +10,7 @@ export default async function MatrixPage() {
   return (
     <PageShell back={{ href: "/", label: "Home" }}>
       <Overline>Matrix</Overline>
-      <h1 className="font-display mt-2 text-3xl font-medium tracking-tight text-plum">
+      <h1 className="font-display mt-2 text-3xl font-medium leading-tight tracking-tight text-plum">
         Product × template grid
       </h1>
       <p className="font-ui mt-2 text-sm text-ink-muted">

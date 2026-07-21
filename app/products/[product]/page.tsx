@@ -13,6 +13,7 @@ import {
   FactList,
   LinkButton,
 } from "@/components/Guide";
+import { DownloadPDF } from "@/components/DownloadPDF";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,10 @@ export default async function ProductPage({
       <Overline>Product guide</Overline>
       <GuideTitle>{product.product_name}</GuideTitle>
       <DeviationTag deviates={deviates} />
+
+      <div className="no-print mt-5">
+        <DownloadPDF label="Download full guide" />
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
         <AssetImage
@@ -104,7 +109,7 @@ export default async function ProductPage({
                   </div>
                 )}
 
-                <div className="mt-5 flex flex-wrap gap-3">
+                <div className="no-print mt-5 flex flex-wrap gap-3">
                   <LinkButton href={`/templates/${spec.spec_id}`}>
                     View full spec
                   </LinkButton>

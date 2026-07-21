@@ -45,7 +45,7 @@ export function Overline({ children }: { children: React.ReactNode }) {
 
 export function GuideTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h1 className="font-display mt-2 text-4xl font-medium tracking-tight text-berry md:text-5xl">
+    <h1 className="font-display mt-3 text-3xl font-medium leading-tight tracking-tight text-berry md:text-4xl">
       {children}
     </h1>
   );

@@ -10,7 +10,7 @@ export default async function TemplatesPage() {
   return (
     <PageShell back={{ href: "/", label: "Home" }}>
       <Overline>Templates</Overline>
-      <h1 className="font-display mt-2 text-3xl font-medium tracking-tight text-plum">
+      <h1 className="font-display mt-2 text-3xl font-medium leading-tight tracking-tight text-plum">
         Specs grouped by family
       </h1>
 

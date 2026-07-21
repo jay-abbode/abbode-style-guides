@@ -11,7 +11,7 @@ in code.
 ## Stack
 
 - Next.js 14 (App Router) · React 18 · TypeScript · Tailwind
-- Real Abbode fonts (New York / Berlin), served locally
+- Abbode New York (display) + Inter (body/UI), served locally
 - `next-auth` gates the whole site to `@shopabbode.com` accounts
 - A Google **service account** reads the Sheet and streams product images from the
   Assets folder
@@ -103,7 +103,14 @@ lib/
 components/                        Guide UI, brand SVGs, image component
 ```
 
+## PDF export
+
+Every product guide, spec sheet, and merged cell has a **Download PDF** button.
+It uses the browser's print-to-PDF (pick "Save as PDF" as the destination), so the
+file matches the on-screen guide exactly; nav and buttons are stripped from the
+output. The product page's button captures the whole guide (item plus every spec).
+
 ## Not yet built
 
-- Per-page and whole-guide PDF export, and print
 - Search
+- Server-generated PDF files (direct download without the print dialog)

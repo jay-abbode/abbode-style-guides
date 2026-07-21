@@ -8,6 +8,7 @@ import {
   Bullets,
   FactList,
 } from "@/components/Guide";
+import { DownloadPDF } from "@/components/DownloadPDF";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,10 @@ export default async function SpecPage({
     <PageShell back={{ href: "/templates", label: "Templates" }}>
       <Overline>{template.template_name} · Spec sheet</Overline>
       <GuideTitle>{spec.spec_name}</GuideTitle>
+
+      <div className="no-print mt-5">
+        <DownloadPDF label="Download spec" />
+      </div>
 
       <Section title="Design">
         <FactList

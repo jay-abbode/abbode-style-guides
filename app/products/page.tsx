@@ -10,7 +10,7 @@ export default async function ProductsPage() {
   return (
     <PageShell back={{ href: "/", label: "Home" }}>
       <Overline>Products</Overline>
-      <h1 className="font-display mt-2 text-3xl font-medium tracking-tight text-plum">
+      <h1 className="font-display mt-2 text-3xl font-medium leading-tight tracking-tight text-plum">
         Every item&apos;s style guide
       </h1>
 

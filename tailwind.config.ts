@@ -10,7 +10,7 @@ const config: Config = {
         // Paris: stylized italic accents
         paris: ['"Abbode Paris"', "serif"],
         // Berlin: body text (also Tailwind's default `font-sans`)
-        sans: ['"Abbode Berlin"', "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ['"Inter"', "ui-sans-serif", "system-ui", "-apple-system", '"Segoe UI"', "sans-serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
       colors: {

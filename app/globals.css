@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------- Abbode brand fonts ---------- */
+/* ---------- Fonts: Abbode New York (display) + Inter (body / UI) ---------- */
 @font-face {
   font-family: "Abbode New York";
   src: url("/fonts/Abbode-NewYork-Font-1_0.ttf") format("truetype");
@@ -11,16 +11,9 @@
   font-display: swap;
 }
 @font-face {
-  font-family: "Abbode Paris";
-  src: url("/fonts/Abbode-Paris-Font-1_0.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Abbode Berlin";
-  src: url("/fonts/Abbode-Berlin-Font-1_0.ttf") format("truetype");
-  font-weight: normal;
+  font-family: "Inter";
+  src: url("/fonts/Inter-Variable.woff2") format("woff2");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -56,8 +49,9 @@
   }
 
   body {
-    /* Berlin is the brand body font */
-    font-family: "Abbode Berlin", ui-sans-serif, system-ui, sans-serif;
+    /* Inter for body copy */
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      sans-serif;
   }
 
   ::selection {
@@ -79,9 +73,10 @@
       radial-gradient(circle at 82% 75%, rgba(209, 198, 143, 0.14) 0%, transparent 55%);
   }
 
-  /* System-font utility for compact UI elements (buttons, labels, badges) */
+  /* Inter for compact UI elements (buttons, labels, badges) */
   .font-ui {
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      sans-serif;
   }
 
   .focus-ring:focus-visible {
@@ -109,3 +104,35 @@
 
 .animate-slide-up { animation: slideUp 240ms cubic-bezier(0.16, 1, 0.3, 1); }
 .animate-fade-in  { animation: fadeIn 180ms ease-out; }
+
+/* ---------- Print / Download PDF ---------- */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  header,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+  section,
+  .pdf-block {
+    break-inside: avoid;
+  }
+  @page {
+    margin: 0.6in;
+  }
+}
