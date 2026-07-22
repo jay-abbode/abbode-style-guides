@@ -14,7 +14,8 @@ export default async function MatrixPage() {
         Product × template grid
       </h1>
       <p className="font-ui mt-2 text-sm text-ink-muted">
-        Filled cells are live. Click one to open the merged guide. Hover a cell to trace its row and column.
+        Every filled cell is a template offered on that product. Click one to
+        open its guide, and hover to trace its row and column.
       </p>
 
       {grid.products.length === 0 || grid.templates.length === 0 ? (

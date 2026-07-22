@@ -54,9 +54,7 @@ export function MatrixGrid({ products, templates, cells }: Props) {
       ? "Not offered"
       : c.char_limit && c.char_limit !== "TBD"
         ? c.char_limit
-        : c.live
-          ? "Live"
-          : "Offered, not yet live";
+        : "Character limit not set";
     timer.current = setTimeout(() => {
       setTip({ x, y, label: `${p.product_name} × ${t.template_name}`, sub });
     }, TOOLTIP_DELAY_MS);
@@ -115,7 +113,7 @@ export function MatrixGrid({ products, templates, cells }: Props) {
                     onMouseEnter: (e: React.MouseEvent) => enter(e, p, t),
                   };
 
-                  if (c?.live) {
+                  if (c?.offered) {
                     return (
                       <td key={t.template_id} {...handlers}>
                         <Link
@@ -124,21 +122,6 @@ export function MatrixGrid({ products, templates, cells }: Props) {
                         >
                           ✓
                         </Link>
-                      </td>
-                    );
-                  }
-                  if (c?.offered) {
-                    return (
-                      <td key={t.template_id} {...handlers}>
-                        <div
-                          className={`${base} border text-ink-muted ${ring} ${
-                            cross
-                              ? "border-pink-deep bg-pink-soft"
-                              : "border-cream-200 bg-white"
-                          }`}
-                        >
-                          ·
-                        </div>
                       </td>
                     );
                   }
