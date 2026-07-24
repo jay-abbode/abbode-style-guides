@@ -6,6 +6,7 @@ import type {
   TemplateRow,
   SpecRow,
   MatrixRow,
+  PlacementRow,
   RuleRow,
 } from "@/lib/types";
 
@@ -31,7 +32,12 @@ async function readTabRaw(tab: string): Promise<Record<string, string>[]> {
     .map((r) => {
       const obj: Record<string, string> = {};
       headers.forEach((h, i) => {
-        if (h) obj[h] = r[i] === undefined || r[i] === null ? "" : String(r[i]);
+        if (!h) return;
+        const raw =
+          r[i] === undefined || r[i] === null ? "" : String(r[i]).trim();
+        // "TBD" is an authoring placeholder, not content. Treat it as empty so
+        // unfinished fields are omitted from guides instead of printed.
+        obj[h] = raw.toUpperCase() === "TBD" ? "" : raw;
       });
       return obj;
     });
@@ -62,6 +68,14 @@ export async function getSpecs(): Promise<SpecRow[]> {
 
 export async function getMatrix(): Promise<MatrixRow[]> {
   return (await cachedTab("Matrix")) as unknown as MatrixRow[];
+}
+
+export async function getPlacements(): Promise<PlacementRow[]> {
+  try {
+    return (await cachedTab("Placements")) as unknown as PlacementRow[];
+  } catch {
+    return [];
+  }
 }
 
 export async function getRules(): Promise<RuleRow[]> {

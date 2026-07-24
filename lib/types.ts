@@ -37,6 +37,9 @@ export interface SpecRow {
   chars_per_line: string;
   max_lines: string;
   max_text_width: string;
+  /** Default character limit for every cell using this spec. A Matrix row's
+   *  own char_limit overrides it when set. */
+  char_limit: string;
   overflow_rule: string;
   notes: string;
 }
@@ -45,9 +48,17 @@ export interface MatrixRow {
   product_id: string;
   template_id: string;
   spec_id: string;
+  placement_id: string;
   char_limit: string;
   live: string;
   status: string;
+}
+
+export interface PlacementRow {
+  placement_id: string;
+  product_id: string;
+  centered: string;
+  description: string;
 }
 
 export interface RuleRow {
@@ -56,11 +67,18 @@ export interface RuleRow {
   rule_text: string;
 }
 
+/** A placement resolved for display: either "Centered" or its description. */
+export interface ResolvedPlacement {
+  centered: boolean;
+  text: string;
+}
+
 // A single joined product x template cell, ready to render.
 export interface MergedCell {
   product: ProductRow;
   template: TemplateRow;
   spec: SpecRow;
+  placement: ResolvedPlacement | null;
   char_limit: string;
   live: boolean;
   rules: { name: string; text: string }[];

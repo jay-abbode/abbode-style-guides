@@ -34,7 +34,7 @@ export default async function ProductPage({
       <DeviationTag deviates={deviates} />
 
       <div className="no-print mt-5">
-        <DownloadPDF label="Download full guide" />
+        <DownloadPDF label="Download guide" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
@@ -44,19 +44,27 @@ export default async function ProductPage({
           className="h-48 w-full object-contain"
         />
         <div>
-          <Section title="Placement" tier="item">
-            <Bullets
-              items={[
-                product.item_placement,
-                product.item_notes,
-                product.hoop && product.hoop !== "TBD"
-                  ? `Hoop: ${product.hoop}`
-                  : "Hoop: to be confirmed",
-                product.sew_field && product.sew_field !== "TBD"
-                  ? `Sew field: ${product.sew_field}`
-                  : "Sew field: to be confirmed",
-              ].filter(Boolean)}
+          <Section title="Item" tier="item">
+            <FactList
+              facts={[
+                {
+                  label: "Hoop",
+                  value: product.hoop && product.hoop !== "TBD" ? product.hoop : "",
+                },
+                {
+                  label: "Sew field",
+                  value:
+                    product.sew_field && product.sew_field !== "TBD"
+                      ? product.sew_field
+                      : "",
+                },
+              ]}
             />
+            {product.item_notes && (
+              <div className="mt-4">
+                <Bullets items={[product.item_notes]} />
+              </div>
+            )}
           </Section>
         </div>
       </div>
@@ -69,7 +77,7 @@ export default async function ProductPage({
           </p>
         ) : (
           <div className="mt-4 space-y-6">
-            {offered.map(({ template, spec, char_limit, rules }) => (
+            {offered.map(({ template, spec, placement, char_limit, rules }) => (
               <div
                 key={spec.spec_id}
                 className="rounded-2xl border border-cream-200 bg-white p-6"
@@ -99,6 +107,10 @@ export default async function ProductPage({
                       { label: "Arrangement", value: spec.arrangement },
                       { label: "Spacing", value: spec.spacing },
                       { label: "Max text width", value: spec.max_text_width },
+                      {
+                        label: "Placement",
+                        value: placement ? placement.text : "",
+                      },
                     ]}
                   />
                 </div>
@@ -111,7 +123,7 @@ export default async function ProductPage({
 
                 <div className="no-print mt-5 flex flex-wrap gap-3">
                   <LinkButton href={`/templates/${spec.spec_id}`}>
-                    View full spec
+                    View spec sheet
                   </LinkButton>
                   <LinkButton
                     href={`/matrix/${product.product_id}/${template.template_id}`}

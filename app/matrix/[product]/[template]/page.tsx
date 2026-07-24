@@ -23,7 +23,7 @@ export default async function MergedCellPage({
 }) {
   const cell = await getMergedCell(params.product, params.template);
   if (!cell) notFound();
-  const { product, template, spec, char_limit, rules } = cell;
+  const { product, template, spec, placement, char_limit, rules } = cell;
   const deviates = (product.deviates ?? "").toLowerCase().trim() === "yes";
 
   return (
@@ -73,22 +73,35 @@ export default async function MergedCellPage({
           </Section>
 
           <Section title="Placement" tier="item">
-            <Bullets
-              items={[
-                product.item_placement,
-                product.item_notes,
-                product.hoop && product.hoop !== "TBD"
-                  ? `Hoop: ${product.hoop}`
-                  : "Hoop: to be confirmed",
-              ].filter(Boolean)}
+            <FactList
+              facts={[
+                { label: "Placement", value: placement ? placement.text : "" },
+                {
+                  label: "Hoop",
+                  value:
+                    product.hoop && product.hoop !== "TBD" ? product.hoop : "",
+                },
+                {
+                  label: "Sew field",
+                  value:
+                    product.sew_field && product.sew_field !== "TBD"
+                      ? product.sew_field
+                      : "",
+                },
+              ]}
             />
+            {product.item_notes && (
+              <div className="mt-4">
+                <Bullets items={[product.item_notes]} />
+              </div>
+            )}
           </Section>
         </div>
       </div>
 
       <div className="no-print mt-10 flex flex-wrap gap-3">
         <LinkButton href={`/templates/${spec.spec_id}`}>
-          View full spec sheet
+          View spec sheet
         </LinkButton>
         <LinkButton href={`/products/${product.product_id}`}>
           View product

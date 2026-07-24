@@ -27,7 +27,7 @@ export default async function SpecPage({
       <GuideTitle>{spec.spec_name}</GuideTitle>
 
       <div className="no-print mt-5">
-        <DownloadPDF label="Download spec" />
+        <DownloadPDF label="Download spec sheet" />
       </div>
 
       <Section title="Design">

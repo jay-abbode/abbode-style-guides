@@ -3,6 +3,7 @@ import {
   getTemplates,
   getSpecs,
   getMatrix,
+  getPlacements,
   getRules,
 } from "@/lib/sheets";
 import { fillTemplate } from "@/lib/rules";
@@ -10,6 +11,8 @@ import type {
   ProductRow,
   TemplateRow,
   SpecRow,
+  PlacementRow,
+  ResolvedPlacement,
   MergedCell,
 } from "@/lib/types";
 
@@ -18,6 +21,24 @@ const isActive = (r: { status?: string }) =>
   (r.status ?? "").toLowerCase().trim() !== "archived";
 
 const yes = (v: string) => (v ?? "").toLowerCase().trim() === "yes";
+
+/** Turn a cell's placement_id into something renderable: "Centered", or the
+ *  free-text description. Returns null when nothing is set. */
+function resolvePlacement(
+  placementId: string,
+  placements: PlacementRow[],
+): ResolvedPlacement | null {
+  const p = placements.find((x) => x.placement_id === (placementId ?? "").trim());
+  if (!p) return null;
+  if (yes(p.centered)) return { centered: true, text: "Centered" };
+  const text = (p.description ?? "").trim();
+  return text ? { centered: false, text } : null;
+}
+
+/** A cell's character limit: its own value when set, otherwise the spec's
+ *  default. Lets one spec-level value cover every surface that uses it. */
+const limitFor = (cell: string, spec: { char_limit?: string }) =>
+  (cell ?? "").trim() || (spec.char_limit ?? "").trim();
 
 /** Resolve the Rules a spec references (its overflow_rule, comma-separated ok),
  *  filling each rule's braces from the merged context. */
@@ -42,13 +63,15 @@ export async function listProducts(): Promise<ProductRow[]> {
 
 /** A product page: the item plus every spec it's offered with (via Matrix). */
 export async function getProductPage(productId: string) {
-  const [products, specs, matrix, templates, rules] = await Promise.all([
-    getProducts(),
-    getSpecs(),
-    getMatrix(),
-    getTemplates(),
-    getRules(),
-  ]);
+  const [products, specs, matrix, templates, placements, rules] =
+    await Promise.all([
+      getProducts(),
+      getSpecs(),
+      getMatrix(),
+      getTemplates(),
+      getPlacements(),
+      getRules(),
+    ]);
   const product = products.find((p) => p.product_id === productId);
   if (!product) return null;
 
@@ -58,11 +81,13 @@ export async function getProductPage(productId: string) {
       const spec = specs.find((s) => s.spec_id === m.spec_id);
       const template = templates.find((t) => t.template_id === m.template_id);
       if (!spec || !template) return null;
-      const ctx = mergedContext(product, spec, m.char_limit);
+      const charLimit = limitFor(m.char_limit, spec);
+      const ctx = mergedContext(product, spec, charLimit);
       return {
         template,
         spec,
-        char_limit: m.char_limit,
+        placement: resolvePlacement(m.placement_id, placements),
+        char_limit: charLimit,
         live: yes(m.live),
         rules: resolveRules(spec, ctx, rules),
       };
@@ -100,10 +125,11 @@ export async function getSpecPage(specId: string) {
  *  Returns a serializable cells map keyed by `${product_id}|${template_id}`
  *  so it can be handed to a client component. */
 export async function getMatrixGrid() {
-  const [products, templates, matrix] = await Promise.all([
+  const [products, templates, matrix, specs] = await Promise.all([
     getProducts(),
     getTemplates(),
     getMatrix(),
+    getSpecs(),
   ]);
   const rows = products.filter(isActive).map((p) => ({
     product_id: p.product_id,
@@ -123,7 +149,10 @@ export async function getMatrixGrid() {
       offered: true,
       live: yes(m.live),
       spec_id: m.spec_id,
-      char_limit: m.char_limit ?? "",
+      char_limit: limitFor(
+        m.char_limit,
+        specs.find((s) => s.spec_id === m.spec_id) ?? {},
+      ),
     };
   }
   return { products: rows, templates: cols, cells };
@@ -134,13 +163,15 @@ export async function getMergedCell(
   productId: string,
   templateId: string,
 ): Promise<MergedCell | null> {
-  const [products, templates, specs, matrix, rules] = await Promise.all([
-    getProducts(),
-    getTemplates(),
-    getSpecs(),
-    getMatrix(),
-    getRules(),
-  ]);
+  const [products, templates, specs, matrix, placements, rules] =
+    await Promise.all([
+      getProducts(),
+      getTemplates(),
+      getSpecs(),
+      getMatrix(),
+      getPlacements(),
+      getRules(),
+    ]);
   const m = matrix.find(
     (x) => x.product_id === productId && x.template_id === templateId,
   );
@@ -150,12 +181,14 @@ export async function getMergedCell(
   const spec = specs.find((s) => s.spec_id === m.spec_id);
   if (!product || !template || !spec) return null;
 
-  const ctx = mergedContext(product, spec, m.char_limit);
+  const charLimit = limitFor(m.char_limit, spec);
+  const ctx = mergedContext(product, spec, charLimit);
   return {
     product,
     template,
     spec,
-    char_limit: m.char_limit,
+    placement: resolvePlacement(m.placement_id, placements),
+    char_limit: charLimit,
     live: yes(m.live),
     rules: resolveRules(spec, ctx, rules),
   };
