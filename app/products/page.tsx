@@ -29,11 +29,6 @@ export default async function ProductsPage() {
                 <span className="font-display text-xl text-plum">
                   {p.product_name}
                 </span>
-                {p.hoop && p.hoop !== "TBD" && (
-                  <span className="font-ui mt-1 block text-xs text-ink-muted">
-                    {p.hoop}
-                  </span>
-                )}
               </Link>
             </li>
           ))}

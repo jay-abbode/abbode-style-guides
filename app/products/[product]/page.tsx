@@ -44,28 +44,11 @@ export default async function ProductPage({
           className="h-48 w-full object-contain"
         />
         <div>
-          <Section title="Item" tier="item">
-            <FactList
-              facts={[
-                {
-                  label: "Hoop",
-                  value: product.hoop && product.hoop !== "TBD" ? product.hoop : "",
-                },
-                {
-                  label: "Sew field",
-                  value:
-                    product.sew_field && product.sew_field !== "TBD"
-                      ? product.sew_field
-                      : "",
-                },
-              ]}
-            />
-            {product.item_notes && (
-              <div className="mt-4">
-                <Bullets items={[product.item_notes]} />
-              </div>
-            )}
-          </Section>
+          {product.item_notes && (
+            <Section title="Item" tier="item">
+              <Bullets items={[product.item_notes]} />
+            </Section>
+          )}
         </div>
       </div>
 

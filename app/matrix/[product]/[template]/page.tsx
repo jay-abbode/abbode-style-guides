@@ -76,18 +76,6 @@ export default async function MergedCellPage({
             <FactList
               facts={[
                 { label: "Placement", value: placement ? placement.text : "" },
-                {
-                  label: "Hoop",
-                  value:
-                    product.hoop && product.hoop !== "TBD" ? product.hoop : "",
-                },
-                {
-                  label: "Sew field",
-                  value:
-                    product.sew_field && product.sew_field !== "TBD"
-                      ? product.sew_field
-                      : "",
-                },
               ]}
             />
             {product.item_notes && (
