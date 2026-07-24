@@ -62,7 +62,7 @@ export function MatrixGrid({ products, templates, cells }: Props) {
 
   return (
     <div
-      className="mt-8 -mx-6 overflow-x-auto px-6"
+      className="mt-8 -mx-6 max-h-[calc(100vh-15rem)] overflow-auto px-6"
       onMouseLeave={() => {
         setHover(null);
         cancelTip();
@@ -71,13 +71,13 @@ export function MatrixGrid({ products, templates, cells }: Props) {
       <table className="border-separate border-spacing-1">
         <thead>
           <tr>
-            <th className="sticky left-0 z-10 bg-porcelain" />
+            <th className="sticky left-0 top-0 z-30 bg-porcelain" />
             {templates.map((t) => {
               const active = hover?.t === t.template_id;
               return (
                 <th
                   key={t.template_id}
-                  className={`font-ui w-[76px] px-1 pb-2 align-bottom text-center text-[11px] leading-tight transition-colors ${
+                  className={`font-ui sticky top-0 z-20 w-[76px] bg-porcelain px-1 pb-2 align-bottom text-center text-[11px] leading-tight transition-colors ${
                     active ? "font-bold text-cherry" : "font-semibold text-berry"
                   }`}
                 >

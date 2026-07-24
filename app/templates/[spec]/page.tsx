@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSpecPage } from "@/lib/data";
 import {
@@ -19,7 +20,7 @@ export default async function SpecPage({
 }) {
   const data = await getSpecPage(params.spec);
   if (!data) notFound();
-  const { spec, template, rules } = data;
+  const { spec, template, rules, products } = data;
 
   return (
     <PageShell back={{ href: "/templates", label: "Templates" }}>
@@ -49,6 +50,27 @@ export default async function SpecPage({
             { label: "Max text width", value: spec.max_text_width },
           ]}
         />
+      </Section>
+
+      <Section title="Products using this spec" tier="item">
+        {products.length === 0 ? (
+          <p className="font-sans text-[15px] text-ink-soft">
+            Not assigned to any product yet.
+          </p>
+        ) : (
+          <ul className="flex flex-wrap gap-2.5">
+            {products.map((p) => (
+              <li key={p.product_id}>
+                <Link
+                  href={`/matrix/${p.product_id}/${template.template_id}`}
+                  className="font-ui focus-ring inline-block rounded-full border border-cream-200 bg-white px-4 py-2 text-sm text-plum transition-colors hover:border-berry hover:text-berry"
+                >
+                  {p.product_name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </Section>
 
       {rules.length > 0 && (

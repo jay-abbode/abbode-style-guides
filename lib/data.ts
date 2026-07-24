@@ -106,19 +106,37 @@ export async function listTemplatesWithSpecs() {
   }));
 }
 
-/** A single spec sheet with its parent template and resolved rules. */
+/** A single spec sheet with its parent template, resolved rules, and the
+ *  products that use it (via the Matrix). */
 export async function getSpecPage(specId: string) {
-  const [specs, templates, rules] = await Promise.all([
+  const [specs, templates, rules, matrix, products] = await Promise.all([
     getSpecs(),
     getTemplates(),
     getRules(),
+    getMatrix(),
+    getProducts(),
   ]);
   const spec = specs.find((s) => s.spec_id === specId);
   if (!spec) return null;
   const template = templates.find((t) => t.template_id === spec.template_id);
   if (!template) return null;
   const ctx = mergedContext(null, spec, "");
-  return { spec, template, rules: resolveRules(spec, ctx, rules) };
+
+  const coveredIds = new Set(
+    matrix
+      .filter((m) => m.spec_id === specId && isActive(m))
+      .map((m) => m.product_id),
+  );
+  const coveredProducts = products.filter(
+    (p) => coveredIds.has(p.product_id) && isActive(p),
+  );
+
+  return {
+    spec,
+    template,
+    rules: resolveRules(spec, ctx, rules),
+    products: coveredProducts,
+  };
 }
 
 /** The full matrix: products (rows) x templates (cols) with cell state.
