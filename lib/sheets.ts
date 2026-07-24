@@ -82,17 +82,38 @@ export async function getRules(): Promise<RuleRow[]> {
   return (await cachedTab("Rules")) as unknown as RuleRow[];
 }
 
+/** Resolve a tab's real title, matched case-insensitively. Google Sheets won't
+ *  allow two tabs whose names differ only by case, so this safely finds e.g.
+ *  "ACCESS" when we look up "access". */
+async function findTabTitle(nameLower: string): Promise<string | null> {
+  const sheets = getSheetsClient();
+  const meta = await sheets.spreadsheets.get({
+    spreadsheetId: SHEET_ID,
+    fields: "sheets.properties.title",
+  });
+  const title = (meta.data.sheets ?? [])
+    .map((s) => s.properties?.title ?? "")
+    .find((t) => t.trim().toLowerCase() === nameLower);
+  return title ?? null;
+}
+
 /**
  * Sign-in allowlist for the auth layer. The base site is open to any
- * @shopabbode.com account; if you later add an "Access" tab with an `email`
- * column (external partners), those addresses are allowed too. No tab => none.
+ * @shopabbode.com account; an "Access" tab (any casing) holds external partner
+ * emails who should also be allowed in. No tab => domain users only. The email
+ * column is matched loosely (Email / email / E-mail), values need an "@".
  */
 export async function getAllowedEmails(): Promise<string[]> {
   try {
-    const rows = await readTabRaw("Access");
+    const title = await findTabTitle("access");
+    if (!title) return [];
+    const rows = await readTabRaw(title);
     return rows
-      .map((r) => (r.email || r.Email || "").toLowerCase().trim())
-      .filter(Boolean);
+      .map((r) => {
+        const key = Object.keys(r).find((k) => /e-?mail/i.test(k));
+        return key ? r[key].toLowerCase().trim() : "";
+      })
+      .filter((e) => e.includes("@"));
   } catch {
     return [];
   }

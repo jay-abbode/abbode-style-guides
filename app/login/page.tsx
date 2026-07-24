@@ -32,7 +32,8 @@ export default async function LoginPage({ searchParams }: PageProps) {
           Sign in to continue
         </h1>
         <p className="font-ui mt-3 text-sm leading-relaxed text-ink-soft">
-          Use your Abbode Google account.
+          Use your Abbode Google account, or the Google account associated with
+          your partner email.
         </p>
 
         {error === "AccessDenied" && (
@@ -47,7 +48,8 @@ export default async function LoginPage({ searchParams }: PageProps) {
               ) : (
                 "Your account isn't on the approved list."
               )}{" "}
-              Ask the Abbode team to grant access, then try again.
+              Ask the Abbode team to add you to the access sheet, then try
+              again.
             </p>
           </div>
         )}
