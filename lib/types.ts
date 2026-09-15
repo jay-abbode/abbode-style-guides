@@ -36,7 +36,6 @@ export interface SpecRow {
   spacing: string;
   chars_per_line: string;
   max_lines: string;
-  max_text_width: string;
   /** Default character limit for every cell using this spec. A Matrix row's
    *  own char_limit overrides it when set. */
   char_limit: string;
@@ -50,6 +49,9 @@ export interface MatrixRow {
   spec_id: string;
   placement_id: string;
   char_limit: string;
+  /** Max design width for this product x template cell. Width lives at the
+   *  intersection, not on the spec. */
+  max_width: string;
   live: string;
   status: string;
 }
@@ -59,6 +61,8 @@ export interface PlacementRow {
   product_id: string;
   centered: string;
   description: string;
+  /** Diagram filename for this placement; falls back to the product image. */
+  image: string;
 }
 
 export interface RuleRow {
@@ -71,6 +75,7 @@ export interface RuleRow {
 export interface ResolvedPlacement {
   centered: boolean;
   text: string;
+  image: string;
 }
 
 // A single joined product x template cell, ready to render.
@@ -80,6 +85,7 @@ export interface MergedCell {
   spec: SpecRow;
   placement: ResolvedPlacement | null;
   char_limit: string;
+  max_width: string;
   live: boolean;
   rules: { name: string; text: string }[];
 }

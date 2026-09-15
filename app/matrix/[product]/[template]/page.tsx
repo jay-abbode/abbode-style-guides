@@ -23,7 +23,8 @@ export default async function MergedCellPage({
 }) {
   const cell = await getMergedCell(params.product, params.template);
   if (!cell) notFound();
-  const { product, template, spec, placement, char_limit, rules } = cell;
+  const { product, template, spec, placement, char_limit, max_width, rules } =
+    cell;
   const deviates = (product.deviates ?? "").toLowerCase().trim() === "yes";
 
   return (
@@ -42,7 +43,7 @@ export default async function MergedCellPage({
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
         <AssetImage
-          src={assetUrl(product.image)}
+          src={assetUrl(placement?.image || product.image)}
           alt={product.product_name}
           className="h-48 w-full object-contain"
         />
@@ -62,7 +63,7 @@ export default async function MergedCellPage({
                 },
                 { label: "Arrangement", value: spec.arrangement },
                 { label: "Spacing", value: spec.spacing },
-                { label: "Max text width", value: spec.max_text_width },
+                { label: "Max text width", value: max_width },
               ]}
             />
             {rules.length > 0 && (

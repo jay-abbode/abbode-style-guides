@@ -30,9 +30,10 @@ function resolvePlacement(
 ): ResolvedPlacement | null {
   const p = placements.find((x) => x.placement_id === (placementId ?? "").trim());
   if (!p) return null;
-  if (yes(p.centered)) return { centered: true, text: "Centered" };
+  const image = (p.image ?? "").trim();
+  if (yes(p.centered)) return { centered: true, text: "Centered", image };
   const text = (p.description ?? "").trim();
-  return text ? { centered: false, text } : null;
+  return text ? { centered: false, text, image } : null;
 }
 
 /** A cell's character limit: its own value when set, otherwise the spec's
@@ -82,12 +83,14 @@ export async function getProductPage(productId: string) {
       const template = templates.find((t) => t.template_id === m.template_id);
       if (!spec || !template) return null;
       const charLimit = limitFor(m.char_limit, spec);
-      const ctx = mergedContext(product, spec, charLimit);
+      const maxWidth = (m.max_width ?? "").trim();
+      const ctx = mergedContext(product, spec, charLimit, maxWidth);
       return {
         template,
         spec,
         placement: resolvePlacement(m.placement_id, placements),
         char_limit: charLimit,
+        max_width: maxWidth,
         live: yes(m.live),
         rules: resolveRules(spec, ctx, rules),
       };
@@ -120,7 +123,7 @@ export async function getSpecPage(specId: string) {
   if (!spec) return null;
   const template = templates.find((t) => t.template_id === spec.template_id);
   if (!template) return null;
-  const ctx = mergedContext(null, spec, "");
+  const ctx = mergedContext(null, spec, "", "");
 
   const coveredIds = new Set(
     matrix
@@ -200,13 +203,15 @@ export async function getMergedCell(
   if (!product || !template || !spec) return null;
 
   const charLimit = limitFor(m.char_limit, spec);
-  const ctx = mergedContext(product, spec, charLimit);
+  const maxWidth = (m.max_width ?? "").trim();
+  const ctx = mergedContext(product, spec, charLimit, maxWidth);
   return {
     product,
     template,
     spec,
     placement: resolvePlacement(m.placement_id, placements),
     char_limit: charLimit,
+    max_width: maxWidth,
     live: yes(m.live),
     rules: resolveRules(spec, ctx, rules),
   };
@@ -218,10 +223,12 @@ function mergedContext(
   product: ProductRow | null,
   spec: SpecRow,
   charLimit: string,
+  maxWidth: string,
 ): Record<string, string> {
   return {
     ...(product ?? {}),
     ...spec,
     char_limit: charLimit,
+    max_width: maxWidth,
   } as Record<string, string>;
 }

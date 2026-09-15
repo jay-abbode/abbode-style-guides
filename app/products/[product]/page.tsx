@@ -60,7 +60,8 @@ export default async function ProductPage({
           </p>
         ) : (
           <div className="mt-4 space-y-6">
-            {offered.map(({ template, spec, placement, char_limit, rules }) => (
+            {offered.map(
+              ({ template, spec, placement, char_limit, max_width, rules }) => (
               <div
                 key={spec.spec_id}
                 className="rounded-2xl border border-cream-200 bg-white p-6"
@@ -89,7 +90,7 @@ export default async function ProductPage({
                       },
                       { label: "Arrangement", value: spec.arrangement },
                       { label: "Spacing", value: spec.spacing },
-                      { label: "Max text width", value: spec.max_text_width },
+                      { label: "Max text width", value: max_width },
                       {
                         label: "Placement",
                         value: placement ? placement.text : "",

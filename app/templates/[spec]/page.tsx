@@ -47,7 +47,6 @@ export default async function SpecPage({
             { label: "Spacing", value: spec.spacing },
             { label: "Characters per line", value: spec.chars_per_line },
             { label: "Max lines", value: spec.max_lines },
-            { label: "Max text width", value: spec.max_text_width },
           ]}
         />
       </Section>
