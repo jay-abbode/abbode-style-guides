@@ -14,6 +14,7 @@ import type {
   PlacementRow,
   ResolvedPlacement,
   MergedCell,
+  StoreOffer,
 } from "@/lib/types";
 
 const isActive = (r: { status?: string }) =>
@@ -231,4 +232,112 @@ function mergedContext(
     char_limit: charLimit,
     max_width: maxWidth,
   } as Record<string, string>;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Store View: front-of-house cut of the same data. Live cells only, price   */
+/* instead of checkmarks, one sample per template, no spec numbers or hoop.  */
+/* ------------------------------------------------------------------------ */
+
+export const PRICE_PLACEHOLDER = "$-.--";
+
+/** "$78" as entered, "78" -> "$78", "78.5" -> "$78.50", blank -> placeholder. */
+export function formatPrice(raw: string | undefined): string {
+  const v = (raw ?? "").trim();
+  if (!v) return PRICE_PLACEHOLDER;
+  if (v.startsWith("$")) return v;
+  const n = Number(v);
+  if (Number.isNaN(n)) return v;
+  return Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`;
+}
+
+/** The sample image for a spec: its `sample_image` when set, otherwise the
+ *  naming convention `Signature 1` -> `Signature_1_Template.png`. */
+export function sampleImageFor(spec: SpecRow): string | null {
+  const explicit = (spec.sample_image ?? "").trim();
+  if (explicit) return explicit;
+  const name = (spec.spec_name ?? "").trim();
+  if (!name) return null;
+  return `${name.replace(/\s+/g, "_")}_Template.png`;
+}
+
+export async function listStoreProducts(): Promise<ProductRow[]> {
+  const [products, matrix] = await Promise.all([getProducts(), getMatrix()]);
+  const withLive = new Set(
+    matrix.filter((m) => isActive(m) && yes(m.live)).map((m) => m.product_id),
+  );
+  return products.filter((p) => isActive(p) && withLive.has(p.product_id));
+}
+
+/** Store matrix: live product x template cells carrying a display price. */
+export async function getStoreGrid() {
+  const [products, templates, matrix] = await Promise.all([
+    getProducts(),
+    getTemplates(),
+    getMatrix(),
+  ]);
+  const cells: Record<string, { price: string; priced: boolean }> = {};
+  const liveProducts = new Set<string>();
+  const liveTemplates = new Set<string>();
+  for (const m of matrix) {
+    if (!isActive(m) || !yes(m.live)) continue;
+    const raw = (m.price ?? "").trim();
+    cells[`${m.product_id}|${m.template_id}`] = {
+      price: formatPrice(raw),
+      priced: raw !== "",
+    };
+    liveProducts.add(m.product_id);
+    liveTemplates.add(m.template_id);
+  }
+  const rows = products
+    .filter((p) => isActive(p) && liveProducts.has(p.product_id))
+    .map((p) => ({
+      product_id: p.product_id,
+      product_name: p.product_name,
+      group: (p.group ?? "").trim(),
+    }));
+  const cols = templates
+    .filter((t) => isActive(t) && liveTemplates.has(t.template_id))
+    .map((t) => ({ template_id: t.template_id, template_name: t.template_name }));
+  return { products: rows, templates: cols, cells };
+}
+
+/** Store product page: the item plus one offer per live template. */
+export async function getStoreProductPage(productId: string) {
+  const [products, specs, matrix, templates, placements, rules] =
+    await Promise.all([
+      getProducts(),
+      getSpecs(),
+      getMatrix(),
+      getTemplates(),
+      getPlacements(),
+      getRules(),
+    ]);
+  const product = products.find((p) => p.product_id === productId);
+  if (!product || !isActive(product)) return null;
+
+  const offers: StoreOffer[] = matrix
+    .filter((m) => m.product_id === productId && isActive(m) && yes(m.live))
+    .map((m) => {
+      const spec = specs.find((s) => s.spec_id === m.spec_id);
+      const template = templates.find((t) => t.template_id === m.template_id);
+      if (!template) return null;
+      const charLimit = spec ? limitFor(m.char_limit, spec) : (m.char_limit ?? "").trim();
+      const maxWidth = (m.max_width ?? "").trim();
+      const ctx = spec ? mergedContext(product, spec, charLimit, maxWidth) : {};
+      return {
+        template,
+        price: formatPrice(m.price),
+        sample_image: spec ? sampleImageFor(spec) : null,
+        chars_per_line: (spec?.chars_per_line ?? "").trim(),
+        max_lines: (spec?.max_lines ?? "").trim(),
+        char_limit: charLimit,
+        arrangement: (spec?.arrangement ?? "").trim(),
+        placement: resolvePlacement(m.placement_id, placements),
+        rules: spec ? resolveRules(spec, ctx, rules) : [],
+      };
+    })
+    .filter((x): x is StoreOffer => Boolean(x));
+
+  return { product, offers };
 }

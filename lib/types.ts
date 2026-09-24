@@ -4,6 +4,8 @@
 export interface ProductRow {
   product_id: string;
   product_name: string;
+  /** Display group for the product list (Pouches, Charms, Apparel...). */
+  group: string;
   base_product_name_nb: string;
   hoop: string;
   sew_field: string;
@@ -41,6 +43,9 @@ export interface SpecRow {
   char_limit: string;
   overflow_rule: string;
   notes: string;
+  /** Filename of the rendered sample for this spec, shown in Store View.
+   *  Blank falls back to `<Spec Name with underscores>_Template.png`. */
+  sample_image: string;
 }
 
 export interface MatrixRow {
@@ -52,6 +57,9 @@ export interface MatrixRow {
   /** Max design width for this product x template cell. Width lives at the
    *  intersection, not on the spec. */
   max_width: string;
+  /** Retail price for this product x template, as displayed in Store View.
+   *  Blank renders as the placeholder. */
+  price: string;
   live: string;
   status: string;
 }
@@ -87,5 +95,18 @@ export interface MergedCell {
   char_limit: string;
   max_width: string;
   live: boolean;
+  rules: { name: string; text: string }[];
+}
+
+/** One template offered on a product, trimmed to what front of house needs. */
+export interface StoreOffer {
+  template: TemplateRow;
+  price: string;
+  sample_image: string | null;
+  chars_per_line: string;
+  max_lines: string;
+  char_limit: string;
+  arrangement: string;
+  placement: ResolvedPlacement | null;
   rules: { name: string; text: string }[];
 }

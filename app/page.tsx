@@ -63,6 +63,12 @@ export default function Home() {
             <MatrixIcon className="h-full w-auto" />
           </Card>
         </nav>
+
+        <p className="font-ui mt-10 text-xs uppercase tracking-[0.18em] text-ink-muted">
+          <Link href="/store" className="focus-ring hover:text-berry">
+            Store view
+          </Link>
+        </p>
       </div>
     </main>
   );
