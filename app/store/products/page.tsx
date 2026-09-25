@@ -35,12 +35,12 @@ export default async function StoreProductsPage() {
               <h2 className="font-ui text-xs uppercase tracking-[0.28em] text-cherry">
                 {g.name}
               </h2>
-              <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {g.items.map((p) => (
                   <li key={p.product_id}>
                     <Link
                       href={`/store/products/${p.product_id}`}
-                      className="focus-ring block rounded-2xl border border-pink-deep/40 bg-white p-5 transition-colors hover:border-plum"
+                      className="focus-ring block rounded-2xl border border-pink-deep/40 bg-white p-5 transition-colors touch-manipulation hover:border-plum active:border-plum"
                     >
                       <span className="font-display text-xl text-plum">
                         {p.product_name}

@@ -14,7 +14,7 @@ export function PageShell({
   const maxw = wide ? "max-w-7xl" : "max-w-4xl";
   return (
     <div className="min-h-screen bg-porcelain">
-      <header className="border-b border-cream-200">
+      <header className="sticky top-0 z-40 border-b border-cream-200 bg-porcelain/95 backdrop-blur">
         <div className={`mx-auto flex ${maxw} items-center justify-between px-6 py-4`}>
           <Link href="/" className="focus-ring inline-flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -45,18 +45,18 @@ export default async function StoreProductPage({
       <StoreOverline>Product</StoreOverline>
       <StoreTitle>{product.product_name}</StoreTitle>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[240px,1fr]">
         <StoreCard className="p-3">
           <AssetImage
             src={assetUrl(product.image)}
             alt={product.product_name}
-            className="h-48 w-full object-contain"
+            className="h-48 w-full object-contain md:h-56"
           />
         </StoreCard>
         <div>
           {product.item_notes && (
             <StoreCard>
-              <p className="font-sans text-[15px] leading-relaxed text-plum">
+              <p className="font-sans text-[16px] leading-relaxed text-plum md:text-[17px]">
                 {product.item_notes}
               </p>
             </StoreCard>
@@ -80,7 +80,7 @@ export default async function StoreProductPage({
                 { label: "Placement", value: o.placement ? o.placement.text : "" },
               ].filter((f) => f.value);
               return (
-                <StoreCard key={o.template.template_id} id={o.template.template_id} className="scroll-mt-24">
+                <StoreCard key={o.template.template_id} id={o.template.template_id} className="scroll-mt-28">
                   <div className="flex items-baseline justify-between gap-4">
                     <h3 className="font-display text-2xl text-plum">
                       {o.template.template_name}
@@ -88,16 +88,16 @@ export default async function StoreProductPage({
                     <PriceTag>{o.price}</PriceTag>
                   </div>
                   {o.template.description && (
-                    <p className="font-sans mt-1 text-sm text-cherry">
+                    <p className="font-sans mt-1 text-[15px] text-cherry">
                       {o.template.description}
                     </p>
                   )}
 
-                  <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-[200px,1fr]">
+                  <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-[220px,1fr]">
                     <AssetImage
                       src={assetUrl(o.sample_image ?? undefined)}
                       alt={`${o.template.template_name} sample`}
-                      className="h-40 w-full rounded-xl object-contain"
+                      className="h-44 w-full rounded-xl object-contain md:h-52"
                     />
                     <div>
                       {facts.length > 0 && (
@@ -110,7 +110,7 @@ export default async function StoreProductPage({
                               <dt className="font-ui text-[11px] uppercase tracking-wider text-cherry">
                                 {f.label}
                               </dt>
-                              <dd className="font-sans text-[15px] text-plum">
+                              <dd className="font-sans text-[16px] text-plum md:text-[17px]">
                                 {f.value}
                               </dd>
                             </div>
@@ -118,7 +118,7 @@ export default async function StoreProductPage({
                         </dl>
                       )}
                       {o.rules.length > 0 && (
-                        <ul className="font-sans mt-4 space-y-2 text-[14px] leading-relaxed text-plum">
+                        <ul className="font-sans mt-4 space-y-2 text-[15px] leading-relaxed text-plum md:text-[16px]">
                           {o.rules.map((r) => (
                             <li key={r.name} className="flex gap-2.5">
                               <span

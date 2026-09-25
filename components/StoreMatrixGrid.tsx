@@ -29,7 +29,7 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
 
   return (
     <div
-      className="mt-8 -mx-6 max-h-[calc(100vh-15rem)] overflow-auto px-6"
+      className="mt-6 -mx-5 max-h-[calc(100dvh-12rem)] overflow-auto overscroll-x-contain px-5 md:-mx-8 md:px-8"
       onMouseLeave={() => setHover(null)}
     >
       <table className="border-separate border-spacing-1">
@@ -41,7 +41,7 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
               return (
                 <th
                   key={t.template_id}
-                  className={`font-ui sticky top-0 z-20 w-[84px] bg-pink px-1 pb-2 align-bottom text-center text-[11px] leading-tight transition-colors ${
+                  className={`font-ui sticky top-0 z-20 w-[88px] bg-pink px-1 pb-2 align-bottom text-center text-[12px] leading-tight transition-colors ${
                     active ? "font-bold text-cherry" : "font-semibold text-plum"
                   }`}
                 >
@@ -57,7 +57,7 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
             return (
               <tr key={p.product_id}>
                 <th
-                  className={`font-ui sticky left-0 z-10 w-44 bg-pink pr-3 text-right align-middle text-[11px] leading-tight transition-colors ${
+                  className={`font-ui sticky left-0 z-10 w-40 bg-pink pr-3 text-right align-middle text-[12px] leading-tight transition-colors ${
                     rowActive ? "font-bold text-cherry" : "font-semibold text-plum"
                   }`}
                 >
@@ -69,7 +69,7 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
                   const cross = rowActive || colActive;
                   const isCell = rowActive && colActive;
                   const base =
-                    "flex h-10 w-[84px] items-center justify-center rounded-lg text-xs tabular-nums transition-all duration-150";
+                    "flex h-12 w-[88px] items-center justify-center rounded-lg text-sm tabular-nums transition-all duration-150 touch-manipulation";
                   const ring = isCell
                     ? "ring-2 ring-cherry ring-offset-1 ring-offset-pink"
                     : "";
@@ -78,8 +78,8 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
 
                   if (c) {
                     const chip = c.priced
-                      ? "bg-plum font-semibold text-pink hover:scale-105"
-                      : "border border-dashed border-plum/60 bg-white/60 font-medium text-plum/70 hover:scale-105";
+                      ? "bg-plum font-semibold text-pink hover:scale-105 active:scale-95"
+                      : "border border-dashed border-plum/60 bg-white/60 font-medium text-plum/70 hover:scale-105 active:scale-95";
                     return (
                       <td key={t.template_id} onMouseEnter={onEnter}>
                         <Link
