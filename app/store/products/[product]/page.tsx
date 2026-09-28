@@ -41,7 +41,7 @@ export default async function StoreProductPage({
   const { product, offers } = data;
 
   return (
-    <StoreShell active="products">
+    <StoreShell active="products" tone="olive">
       <StoreOverline>Product</StoreOverline>
       <StoreTitle>{product.product_name}</StoreTitle>
 
@@ -67,7 +67,7 @@ export default async function StoreProductPage({
       <div className="mt-10">
         <StoreOverline>Templates</StoreOverline>
         {offers.length === 0 ? (
-          <p className="font-sans mt-3 text-plum/70">
+          <p className="font-sans mt-3 text-plum/70 group-data-[tone=olive]:text-porcelain/80">
             No templates offered on this item yet.
           </p>
         ) : (

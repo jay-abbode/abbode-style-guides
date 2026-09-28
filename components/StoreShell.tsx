@@ -8,12 +8,18 @@ export function StoreShell({
   children,
   active,
   wide,
+  tone = "pink",
 }: {
   children: React.ReactNode;
   active?: "products" | "matrix";
   wide?: boolean;
+  /** Page colour. "olive" for pages that show pink product images, so the
+   *  image does not read as a hole through the white card to the pink page. */
+  tone?: "pink" | "olive";
 }) {
   const maxw = wide ? "max-w-7xl" : "max-w-4xl";
+  const page =
+    tone === "olive" ? "bg-olive text-porcelain" : "bg-pink text-plum";
   const tab = (key: "products" | "matrix", href: string, label: string) => (
     <Link
       href={href}
@@ -27,7 +33,7 @@ export function StoreShell({
     </Link>
   );
   return (
-    <div className="min-h-screen bg-pink text-plum">
+    <div className={`group min-h-screen ${page}`} data-tone={tone}>
       <header className="sticky top-0 z-40 bg-plum pt-[env(safe-area-inset-top)] shadow-md shadow-plum/20">
         <div
           className={`mx-auto flex ${maxw} items-center justify-between gap-4 px-5 py-3 md:px-8`}
@@ -62,7 +68,7 @@ export function StoreShell({
 
 export function StoreOverline({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-ui text-xs uppercase tracking-[0.28em] text-cherry">
+    <p className="font-ui text-xs uppercase tracking-[0.28em] text-cherry group-data-[tone=olive]:text-sage">
       {children}
     </p>
   );
@@ -70,7 +76,7 @@ export function StoreOverline({ children }: { children: React.ReactNode }) {
 
 export function StoreTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h1 className="font-display mt-2 text-3xl font-medium leading-tight tracking-tight text-plum md:text-4xl">
+    <h1 className="font-display mt-2 text-3xl font-medium leading-tight tracking-tight text-plum group-data-[tone=olive]:text-porcelain md:text-4xl">
       {children}
     </h1>
   );
@@ -89,7 +95,7 @@ export function StoreCard({
   return (
     <div
       id={id}
-      className={`rounded-2xl border border-pink-deep/40 bg-white p-5 shadow-sm md:p-6 ${className ?? ""}`}
+      className={`rounded-2xl border border-pink-deep/40 bg-white p-5 shadow-sm group-data-[tone=olive]:border-sage/40 md:p-6 ${className ?? ""}`}
     >
       {children}
     </div>
