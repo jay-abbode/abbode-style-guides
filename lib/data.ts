@@ -7,6 +7,7 @@ import {
   getRules,
 } from "@/lib/sheets";
 import { fillTemplate } from "@/lib/rules";
+import { cellImageFor } from "@/lib/assets";
 import type {
   ProductRow,
   TemplateRow,
@@ -350,15 +351,20 @@ export async function getStoreProductPage(productId: string) {
       const charLimit = spec ? limitFor(m.char_limit, spec) : (m.char_limit ?? "").trim();
       const maxWidth = (m.max_width ?? "").trim();
       const ctx = spec ? mergedContext(product, spec, charLimit, maxWidth) : {};
+      const placement = resolvePlacement(m.placement_id, placements);
       return {
         template,
         price: formatPrice(m.price),
         sample_image: spec ? sampleImageFor(spec) : null,
+        cell_image:
+          spec && placement?.positioned
+            ? cellImageFor(product.product_id, spec.spec_id)
+            : null,
         chars_per_line: (spec?.chars_per_line ?? "").trim(),
         max_lines: (spec?.max_lines ?? "").trim(),
         char_limit: charLimit,
         arrangement: (spec?.arrangement ?? "").trim(),
-        placement: resolvePlacement(m.placement_id, placements),
+        placement,
         rules: spec ? resolveRules(spec, ctx, rules) : [],
       };
     })

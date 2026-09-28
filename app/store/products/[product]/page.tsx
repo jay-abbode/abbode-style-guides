@@ -95,7 +95,8 @@ export default async function StoreProductPage({
 
                   <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-[220px,1fr]">
                     <AssetImage
-                      src={assetUrl(o.sample_image ?? undefined)}
+                      src={assetUrl(o.cell_image ?? undefined)}
+                      fallbackSrc={assetUrl(o.sample_image ?? undefined)}
                       alt={`${o.template.template_name} sample`}
                       className="h-44 w-full rounded-xl object-contain md:h-52"
                     />

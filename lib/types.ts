@@ -123,6 +123,8 @@ export interface StoreOffer {
   template: TemplateRow;
   price: string;
   sample_image: string | null;
+  /** Overlay of the spec on the product, only when its placement is positioned. */
+  cell_image: string | null;
   chars_per_line: string;
   max_lines: string;
   char_limit: string;

@@ -42,23 +42,16 @@ export default async function MergedCellPage({
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
-        <div className="space-y-4">
-          <AssetImage
-            src={
-              placement?.positioned
-                ? assetUrl(cellImageFor(product.product_id, spec.spec_id))
-                : null
-            }
-            fallbackSrc={assetUrl(sampleImageFor(spec) ?? undefined)}
-            alt={`${template.template_name} sample`}
-            className="h-48 w-full object-contain"
-          />
-          <AssetImage
-            src={assetUrl(placement?.image || product.image)}
-            alt={product.product_name}
-            className="h-40 w-full object-contain"
-          />
-        </div>
+        <AssetImage
+          src={
+            placement?.positioned
+              ? assetUrl(cellImageFor(product.product_id, spec.spec_id))
+              : null
+          }
+          fallbackSrc={assetUrl(sampleImageFor(spec) ?? undefined)}
+          alt={`${template.template_name} sample`}
+          className="h-48 w-full object-contain"
+        />
         <div className="space-y-8">
           <Section title="Design">
             <FactList
