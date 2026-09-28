@@ -2,20 +2,24 @@
 
 import { useState } from "react";
 
-/** Renders a product image from /api/asset. If the file isn't in the Assets
- *  folder yet, shows a labeled placeholder instead of a broken image. */
+/** Renders an image from /api/asset. If the file isn't in the Assets folder
+ *  yet, tries `fallbackSrc` (when given), then shows a labeled placeholder
+ *  instead of a broken image. */
 export function AssetImage({
   src,
+  fallbackSrc,
   alt,
   className,
 }: {
   src: string | null;
+  fallbackSrc?: string | null;
   alt: string;
   className?: string;
 }) {
+  const [current, setCurrent] = useState<string | null>(src ?? fallbackSrc ?? null);
   const [failed, setFailed] = useState(false);
 
-  if (!src || failed) {
+  if (!current || failed) {
     return (
       <div
         className={
@@ -33,10 +37,13 @@ export function AssetImage({
   // eslint-disable-next-line @next/next/no-img-element
   return (
     <img
-      src={src}
+      src={current}
       alt={alt}
       className={className}
-      onError={() => setFailed(true)}
+      onError={() => {
+        if (fallbackSrc && current !== fallbackSrc) setCurrent(fallbackSrc);
+        else setFailed(true);
+      }}
     />
   );
 }

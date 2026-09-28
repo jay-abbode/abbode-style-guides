@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSpecPage } from "@/lib/data";
+import { getSpecPage, sampleImageFor } from "@/lib/data";
+import { assetUrl } from "@/lib/assets";
+import { AssetImage } from "@/components/AssetImage";
 import {
   PageShell,
   Overline,
@@ -31,25 +33,32 @@ export default async function SpecPage({
         <DownloadPDF label="Download spec sheet" />
       </div>
 
-      <Section title="Design">
-        <FactList
-          facts={[
-            { label: "Offering", value: spec.offering },
-            { label: "Text size", value: spec.text_size },
-            {
-              label: "Icons",
-              value:
-                spec.icon_count && spec.icon_count !== "0"
-                  ? `${spec.icon_count} · ${spec.icon_size}`
-                  : "",
-            },
-            { label: "Arrangement", value: spec.arrangement },
-            { label: "Spacing", value: spec.spacing },
-            { label: "Characters per line", value: spec.chars_per_line },
-            { label: "Max lines", value: spec.max_lines },
-          ]}
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
+        <AssetImage
+          src={assetUrl(sampleImageFor(spec) ?? undefined)}
+          alt={`${spec.spec_name} sample`}
+          className="h-48 w-full object-contain"
         />
-      </Section>
+        <Section title="Design">
+          <FactList
+            facts={[
+              { label: "Offering", value: spec.offering },
+              { label: "Text size", value: spec.text_size },
+              {
+                label: "Icons",
+                value:
+                  spec.icon_count && spec.icon_count !== "0"
+                    ? `${spec.icon_count} · ${spec.icon_size}`
+                    : "",
+              },
+              { label: "Arrangement", value: spec.arrangement },
+              { label: "Spacing", value: spec.spacing },
+              { label: "Characters per line", value: spec.chars_per_line },
+              { label: "Max lines", value: spec.max_lines },
+            ]}
+          />
+        </Section>
+      </div>
 
       <Section title="Products using this spec" tier="item">
         {products.length === 0 ? (

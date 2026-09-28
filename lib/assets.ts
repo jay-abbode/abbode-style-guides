@@ -5,3 +5,9 @@ export function assetUrl(name: string | undefined): string | null {
   if (!n) return null;
   return `/api/asset/${encodeURIComponent(n)}`;
 }
+
+/** Overlay image for a matrix cell: the spec sample rendered on the product,
+ *  named `<product_id>__<spec_id>.png` in the Assets folder. */
+export function cellImageFor(productId: string, specId: string): string {
+  return `${productId}__${specId}.png`;
+}

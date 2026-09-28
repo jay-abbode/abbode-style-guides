@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getMergedCell } from "@/lib/data";
-import { assetUrl } from "@/lib/assets";
+import { getMergedCell, sampleImageFor } from "@/lib/data";
+import { assetUrl, cellImageFor } from "@/lib/assets";
 import { AssetImage } from "@/components/AssetImage";
 import {
   PageShell,
@@ -42,11 +42,19 @@ export default async function MergedCellPage({
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
-        <AssetImage
-          src={assetUrl(placement?.image || product.image)}
-          alt={product.product_name}
-          className="h-48 w-full object-contain"
-        />
+        <div className="space-y-4">
+          <AssetImage
+            src={assetUrl(cellImageFor(product.product_id, spec.spec_id))}
+            fallbackSrc={assetUrl(sampleImageFor(spec) ?? undefined)}
+            alt={`${template.template_name} sample`}
+            className="h-48 w-full object-contain"
+          />
+          <AssetImage
+            src={assetUrl(placement?.image || product.image)}
+            alt={product.product_name}
+            className="h-40 w-full object-contain"
+          />
+        </div>
         <div className="space-y-8">
           <Section title="Design">
             <FactList
