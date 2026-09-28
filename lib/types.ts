@@ -15,6 +15,12 @@ export interface ProductRow {
   overflow_floor: string;
   image: string;
   status: string;
+  /** Sold on abbode.com. Blank or "yes" shows the product in the main view;
+   *  "no" hides it there. */
+  online: string;
+  /** Sold in the physical store. Blank or "yes" shows the product in Store
+   *  View; "no" hides it there. */
+  in_store: string;
 }
 
 export interface TemplateRow {
@@ -24,6 +30,12 @@ export interface TemplateRow {
   design_template_type: string;
   description: string;
   status: string;
+  /** Offered on abbode.com. Blank or "yes" shows the template in the main
+   *  view; "no" hides it there. */
+  online: string;
+  /** Offered in the physical store. Blank or "yes" shows the template in
+   *  Store View; "no" hides it there. */
+  in_store: string;
 }
 
 export interface SpecRow {

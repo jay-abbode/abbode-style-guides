@@ -22,6 +22,13 @@ const isActive = (r: { status?: string }) =>
   (r.status ?? "").toLowerCase().trim() !== "archived";
 
 const yes = (v: string) => (v ?? "").toLowerCase().trim() === "yes";
+const no = (v: string) => (v ?? "").toLowerCase().trim() === "no";
+
+/** Channel toggles from the Products tab. Only an explicit "no" hides a
+ *  product, so a blank column keeps everything visible. */
+type Channelled = { status?: string; online?: string; in_store?: string };
+const isOnline = (r: Channelled) => isActive(r) && !no(r.online ?? "");
+const isInStore = (r: Channelled) => isActive(r) && !no(r.in_store ?? "");
 
 /** Turn a cell's placement_id into something renderable: "Centered", or the
  *  free-text description. Returns null when nothing is set. */
@@ -60,7 +67,7 @@ function resolveRules(
 }
 
 export async function listProducts(): Promise<ProductRow[]> {
-  return (await getProducts()).filter(isActive);
+  return (await getProducts()).filter(isOnline);
 }
 
 /** A product page: the item plus every spec it's offered with (via Matrix). */
@@ -75,14 +82,14 @@ export async function getProductPage(productId: string) {
       getRules(),
     ]);
   const product = products.find((p) => p.product_id === productId);
-  if (!product) return null;
+  if (!product || !isOnline(product)) return null;
 
   const offered = matrix
     .filter((m) => m.product_id === productId && isActive(m))
     .map((m) => {
       const spec = specs.find((s) => s.spec_id === m.spec_id);
       const template = templates.find((t) => t.template_id === m.template_id);
-      if (!spec || !template) return null;
+      if (!spec || !template || !isOnline(template)) return null;
       const charLimit = limitFor(m.char_limit, spec);
       const maxWidth = (m.max_width ?? "").trim();
       const ctx = mergedContext(product, spec, charLimit, maxWidth);
@@ -104,7 +111,7 @@ export async function getProductPage(productId: string) {
 /** Templates grouped with their specs. */
 export async function listTemplatesWithSpecs() {
   const [templates, specs] = await Promise.all([getTemplates(), getSpecs()]);
-  return templates.filter(isActive).map((template) => ({
+  return templates.filter(isOnline).map((template) => ({
     template,
     specs: specs.filter((s) => s.template_id === template.template_id),
   }));
@@ -123,7 +130,7 @@ export async function getSpecPage(specId: string) {
   const spec = specs.find((s) => s.spec_id === specId);
   if (!spec) return null;
   const template = templates.find((t) => t.template_id === spec.template_id);
-  if (!template) return null;
+  if (!template || !isOnline(template)) return null;
   const ctx = mergedContext(null, spec, "", "");
 
   const coveredIds = new Set(
@@ -132,7 +139,7 @@ export async function getSpecPage(specId: string) {
       .map((m) => m.product_id),
   );
   const coveredProducts = products.filter(
-    (p) => coveredIds.has(p.product_id) && isActive(p),
+    (p) => coveredIds.has(p.product_id) && isOnline(p),
   );
 
   return {
@@ -153,11 +160,11 @@ export async function getMatrixGrid() {
     getMatrix(),
     getSpecs(),
   ]);
-  const rows = products.filter(isActive).map((p) => ({
+  const rows = products.filter(isOnline).map((p) => ({
     product_id: p.product_id,
     product_name: p.product_name,
   }));
-  const cols = templates.filter(isActive).map((t) => ({
+  const cols = templates.filter(isOnline).map((t) => ({
     template_id: t.template_id,
     template_name: t.template_name,
   }));
@@ -201,7 +208,8 @@ export async function getMergedCell(
   const product = products.find((p) => p.product_id === productId);
   const template = templates.find((t) => t.template_id === templateId);
   const spec = specs.find((s) => s.spec_id === m.spec_id);
-  if (!product || !template || !spec) return null;
+  if (!product || !isOnline(product) || !template || !isOnline(template) || !spec)
+    return null;
 
   const charLimit = limitFor(m.char_limit, spec);
   const maxWidth = (m.max_width ?? "").trim();
@@ -262,11 +270,20 @@ export function sampleImageFor(spec: SpecRow): string | null {
 }
 
 export async function listStoreProducts(): Promise<ProductRow[]> {
-  const [products, matrix] = await Promise.all([getProducts(), getMatrix()]);
-  const withLive = new Set(
-    matrix.filter((m) => isActive(m) && yes(m.live)).map((m) => m.product_id),
+  const [products, templates, matrix] = await Promise.all([
+    getProducts(),
+    getTemplates(),
+    getMatrix(),
+  ]);
+  const storeTemplates = new Set(
+    templates.filter(isInStore).map((t) => t.template_id),
   );
-  return products.filter((p) => isActive(p) && withLive.has(p.product_id));
+  const withLive = new Set(
+    matrix
+      .filter((m) => isActive(m) && yes(m.live) && storeTemplates.has(m.template_id))
+      .map((m) => m.product_id),
+  );
+  return products.filter((p) => isInStore(p) && withLive.has(p.product_id));
 }
 
 /** Store matrix: live product x template cells carrying a display price. */
@@ -277,10 +294,13 @@ export async function getStoreGrid() {
     getMatrix(),
   ]);
   const cells: Record<string, { price: string; priced: boolean }> = {};
+  const storeTemplates = new Set(
+    templates.filter(isInStore).map((t) => t.template_id),
+  );
   const liveProducts = new Set<string>();
   const liveTemplates = new Set<string>();
   for (const m of matrix) {
-    if (!isActive(m) || !yes(m.live)) continue;
+    if (!isActive(m) || !yes(m.live) || !storeTemplates.has(m.template_id)) continue;
     const raw = (m.price ?? "").trim();
     cells[`${m.product_id}|${m.template_id}`] = {
       price: formatPrice(raw),
@@ -290,14 +310,14 @@ export async function getStoreGrid() {
     liveTemplates.add(m.template_id);
   }
   const rows = products
-    .filter((p) => isActive(p) && liveProducts.has(p.product_id))
+    .filter((p) => isInStore(p) && liveProducts.has(p.product_id))
     .map((p) => ({
       product_id: p.product_id,
       product_name: p.product_name,
       group: (p.group ?? "").trim(),
     }));
   const cols = templates
-    .filter((t) => isActive(t) && liveTemplates.has(t.template_id))
+    .filter((t) => isInStore(t) && liveTemplates.has(t.template_id))
     .map((t) => ({ template_id: t.template_id, template_name: t.template_name }));
   return { products: rows, templates: cols, cells };
 }
@@ -314,14 +334,14 @@ export async function getStoreProductPage(productId: string) {
       getRules(),
     ]);
   const product = products.find((p) => p.product_id === productId);
-  if (!product || !isActive(product)) return null;
+  if (!product || !isInStore(product)) return null;
 
   const offers: StoreOffer[] = matrix
     .filter((m) => m.product_id === productId && isActive(m) && yes(m.live))
     .map((m) => {
       const spec = specs.find((s) => s.spec_id === m.spec_id);
       const template = templates.find((t) => t.template_id === m.template_id);
-      if (!template) return null;
+      if (!template || !isInStore(template)) return null;
       const charLimit = spec ? limitFor(m.char_limit, spec) : (m.char_limit ?? "").trim();
       const maxWidth = (m.max_width ?? "").trim();
       const ctx = spec ? mergedContext(product, spec, charLimit, maxWidth) : {};
