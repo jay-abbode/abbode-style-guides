@@ -83,6 +83,11 @@ export interface PlacementRow {
   description: string;
   /** Diagram filename for this placement; falls back to the product image. */
   image: string;
+  /** Overlay position, filled in from the placement tool. Blank until set. */
+  anchor?: string;
+  x_in?: string;
+  y_in?: string;
+  rotation_deg?: string;
 }
 
 export interface RuleRow {
@@ -94,6 +99,9 @@ export interface RuleRow {
 /** A placement resolved for display: either "Centered" or its description. */
 export interface ResolvedPlacement {
   centered: boolean;
+  /** True when the overlay position is known: centered, or offsets filled in.
+   *  Cells on unpositioned placements show the spec sample, not the overlay. */
+  positioned: boolean;
   text: string;
   image: string;
 }

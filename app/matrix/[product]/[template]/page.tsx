@@ -44,7 +44,11 @@ export default async function MergedCellPage({
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
         <div className="space-y-4">
           <AssetImage
-            src={assetUrl(cellImageFor(product.product_id, spec.spec_id))}
+            src={
+              placement?.positioned
+                ? assetUrl(cellImageFor(product.product_id, spec.spec_id))
+                : null
+            }
             fallbackSrc={assetUrl(sampleImageFor(spec) ?? undefined)}
             alt={`${template.template_name} sample`}
             className="h-48 w-full object-contain"

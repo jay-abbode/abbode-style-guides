@@ -39,9 +39,14 @@ function resolvePlacement(
   const p = placements.find((x) => x.placement_id === (placementId ?? "").trim());
   if (!p) return null;
   const image = (p.image ?? "").trim();
-  if (yes(p.centered)) return { centered: true, text: "Centered", image };
+  const hasOffsets =
+    (p.x_in ?? "").trim() !== "" && (p.y_in ?? "").trim() !== "";
+  if (yes(p.centered))
+    return { centered: true, positioned: true, text: "Centered", image };
   const text = (p.description ?? "").trim();
-  return text ? { centered: false, text, image } : null;
+  return text
+    ? { centered: false, positioned: hasOffsets, text, image }
+    : null;
 }
 
 /** A cell's character limit: its own value when set, otherwise the spec's
