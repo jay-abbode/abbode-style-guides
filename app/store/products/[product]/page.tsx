@@ -45,23 +45,21 @@ export default async function StoreProductPage({
       <StoreOverline>Product</StoreOverline>
       <StoreTitle>{product.product_name}</StoreTitle>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[240px,1fr]">
-        <StoreCard className="p-3">
+      <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-start">
+        <StoreCard className="p-3 md:w-[240px] md:shrink-0">
           <AssetImage
             src={assetUrl(product.image)}
             alt={product.product_name}
-            className="h-48 w-full object-contain md:h-56"
+            className="h-40 w-full object-contain md:h-56"
           />
         </StoreCard>
-        <div>
-          {product.item_notes && (
-            <StoreCard>
-              <p className="font-sans text-[16px] leading-relaxed text-plum md:text-[17px]">
-                {product.item_notes}
-              </p>
-            </StoreCard>
-          )}
-        </div>
+        {product.item_notes && (
+          <StoreCard className="md:flex-1">
+            <p className="font-sans text-[16px] leading-relaxed text-plum md:text-[17px]">
+              {product.item_notes}
+            </p>
+          </StoreCard>
+        )}
       </div>
 
       <div className="mt-10">
@@ -80,7 +78,7 @@ export default async function StoreProductPage({
                 { label: "Placement", value: o.placement ? o.placement.text : "" },
               ].filter((f) => f.value);
               return (
-                <StoreCard key={o.template.template_id} id={o.template.template_id} className="scroll-mt-28">
+                <StoreCard key={o.template.template_id} id={o.template.template_id} className="scroll-mt-[calc(5.25rem+env(safe-area-inset-top))]">
                   <div className="flex items-baseline justify-between gap-4">
                     <h3 className="font-display text-2xl text-plum">
                       {o.template.template_name}
@@ -93,12 +91,12 @@ export default async function StoreProductPage({
                     </p>
                   )}
 
-                  <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-[220px,1fr]">
+                  <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-[200px,1fr] md:grid-cols-[240px,1fr] md:gap-8">
                     <AssetImage
                       src={assetUrl(o.cell_image ?? undefined)}
                       fallbackSrc={assetUrl(o.sample_image ?? undefined)}
                       alt={`${o.template.template_name} sample`}
-                      className="h-44 w-full rounded-xl object-contain md:h-52"
+                      className="h-44 w-full rounded-xl object-contain sm:h-48 md:h-60"
                     />
                     <div>
                       {facts.length > 0 && (

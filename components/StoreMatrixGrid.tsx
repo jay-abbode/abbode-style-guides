@@ -27,21 +27,26 @@ interface Props {
 export function StoreMatrixGrid({ products, templates, cells }: Props) {
   const [hover, setHover] = useState<{ p: string; t: string } | null>(null);
 
+  // iPad and up: the grid fits the page width, the page itself scrolls, and
+  // the template row sticks under the plum bar. Phones: the grid scrolls
+  // sideways inside its own box with the product column pinned.
   return (
     <div
-      className="mt-6 -mx-5 max-h-[calc(100dvh-12rem)] overflow-auto overscroll-x-contain px-5 md:-mx-8 md:px-8"
+      className="-mx-5 mt-6 overflow-x-auto overscroll-x-contain px-5 md:mx-0 md:overflow-visible md:px-0"
       onMouseLeave={() => setHover(null)}
     >
-      <table className="border-separate border-spacing-1">
+      <table className="border-separate border-spacing-1 md:w-full md:table-fixed">
         <thead>
           <tr>
-            <th className="sticky left-0 top-0 z-30 bg-pink" />
+            <th
+              className={`sticky left-0 z-30 w-28 bg-pink md:top-[calc(4.25rem+env(safe-area-inset-top))] md:w-[100px] lg:w-[132px]`}
+            />
             {templates.map((t) => {
               const active = hover?.t === t.template_id;
               return (
                 <th
                   key={t.template_id}
-                  className={`font-ui sticky top-0 z-20 w-[88px] bg-pink px-1 pb-2 align-bottom text-center text-[12px] leading-tight transition-colors ${
+                  className={`font-ui z-20 w-[84px] bg-pink px-0.5 pb-2 align-bottom text-center text-[11px] leading-tight transition-colors md:sticky md:top-[calc(4.25rem+env(safe-area-inset-top))] md:w-auto md:pt-2 md:text-[10.5px] md:tracking-tight lg:text-[12px] lg:tracking-normal ${
                     active ? "font-bold text-cherry" : "font-semibold text-plum"
                   }`}
                 >
@@ -57,7 +62,7 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
             return (
               <tr key={p.product_id}>
                 <th
-                  className={`font-ui sticky left-0 z-10 w-40 bg-pink pr-3 text-right align-middle text-[12px] leading-tight transition-colors ${
+                  className={`font-ui sticky left-0 z-10 bg-pink pr-2 text-right align-middle text-[11px] leading-tight transition-colors md:pr-3 md:text-[12px] ${
                     rowActive ? "font-bold text-cherry" : "font-semibold text-plum"
                   }`}
                 >
@@ -69,7 +74,7 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
                   const cross = rowActive || colActive;
                   const isCell = rowActive && colActive;
                   const base =
-                    "flex h-12 w-[88px] items-center justify-center rounded-lg text-sm tabular-nums transition-all duration-150 touch-manipulation";
+                    "flex h-11 w-full min-w-[52px] items-center justify-center rounded-lg text-[13px] tabular-nums transition-all duration-150 touch-manipulation md:h-12 md:text-sm";
                   const ring = isCell
                     ? "ring-2 ring-cherry ring-offset-1 ring-offset-pink"
                     : "";
@@ -81,7 +86,7 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
                       ? "bg-plum font-semibold text-pink hover:scale-105 active:scale-95"
                       : "border border-dashed border-plum/60 bg-white/60 font-medium text-plum/70 hover:scale-105 active:scale-95";
                     return (
-                      <td key={t.template_id} onMouseEnter={onEnter}>
+                      <td key={t.template_id} className="p-0" onMouseEnter={onEnter}>
                         <Link
                           href={`/store/products/${p.product_id}#${t.template_id}`}
                           className={`${base} ${chip} ${ring}`}
@@ -93,7 +98,7 @@ export function StoreMatrixGrid({ products, templates, cells }: Props) {
                     );
                   }
                   return (
-                    <td key={t.template_id} onMouseEnter={onEnter}>
+                    <td key={t.template_id} className="p-0" onMouseEnter={onEnter}>
                       <div
                         className={`${base} ${ring} ${
                           cross ? "bg-white/50" : "bg-white/25"
