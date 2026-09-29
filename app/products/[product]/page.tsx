@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductPage } from "@/lib/data";
-import { assetUrl } from "@/lib/assets";
-import { AssetImage } from "@/components/AssetImage";
+import { CellImages } from "@/components/CellImages";
 import {
   PageShell,
   Overline,
@@ -24,7 +23,7 @@ export default async function ProductPage({
 }) {
   const data = await getProductPage(params.product);
   if (!data) notFound();
-  const { product, offered } = data;
+  const { product, offered, product_images } = data;
   const deviates = (product.deviates ?? "").toLowerCase().trim() === "yes";
 
   return (
@@ -37,9 +36,9 @@ export default async function ProductPage({
         <DownloadPDF label="Download guide" />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
-        <AssetImage
-          src={assetUrl(product.image)}
+      <div className={`mt-6 grid grid-cols-1 gap-6 ${product_images.length > 1 ? "md:grid-cols-[440px,1fr]" : "md:grid-cols-[220px,1fr]"}`}>
+        <CellImages
+          images={product_images}
           alt={product.product_name}
           className="h-48 w-full object-contain"
         />

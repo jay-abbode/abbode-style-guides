@@ -11,3 +11,9 @@ export function assetUrl(name: string | undefined): string | null {
 export function cellImageFor(productId: string, specId: string): string {
   return `${productId}__${specId}.png`;
 }
+
+/** Overlay for one placement of a multi-placement cell, named
+ *  `<placement_id>__<spec_id>.png` (sweater-cuff-p1__monogram-2.png). */
+export function placementImageFor(placementId: string, specId: string): string {
+  return `${placementId}__${specId}.png`;
+}

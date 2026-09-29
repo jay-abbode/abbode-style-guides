@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getStoreProductPage } from "@/lib/data";
 import { assetUrl } from "@/lib/assets";
-import { AssetImage } from "@/components/AssetImage";
+import { CellImages } from "@/components/CellImages";
 import {
   StoreShell,
   StoreOverline,
@@ -38,7 +38,7 @@ export default async function StoreProductPage({
 }) {
   const data = await getStoreProductPage(params.product);
   if (!data) notFound();
-  const { product, offers } = data;
+  const { product, offers, product_images } = data;
 
   return (
     <StoreShell active="products" tone="olive">
@@ -46,11 +46,12 @@ export default async function StoreProductPage({
       <StoreTitle>{product.product_name}</StoreTitle>
 
       <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-start">
-        <StoreCard className="p-3 md:w-[240px] md:shrink-0">
-          <AssetImage
-            src={assetUrl(product.image)}
+        <StoreCard className={`p-3 md:shrink-0 ${product_images.length > 1 ? "md:w-[480px]" : "md:w-[240px]"}`}>
+          <CellImages
+            images={product_images}
             alt={product.product_name}
             className="h-40 w-full object-contain md:h-56"
+            tone="store"
           />
         </StoreCard>
         {product.item_notes && (
@@ -91,12 +92,13 @@ export default async function StoreProductPage({
                     </p>
                   )}
 
-                  <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-[200px,1fr] md:grid-cols-[240px,1fr] md:gap-8">
-                    <AssetImage
-                      src={assetUrl(o.cell_image ?? undefined)}
+                  <div className={`mt-5 grid grid-cols-1 gap-5 md:gap-8 ${o.cell_images.length > 1 ? "sm:grid-cols-[360px,1fr] md:grid-cols-[440px,1fr]" : "sm:grid-cols-[200px,1fr] md:grid-cols-[240px,1fr]"}`}>
+                    <CellImages
+                      images={o.cell_images}
                       fallbackSrc={assetUrl(o.sample_image ?? undefined)}
                       alt={`${o.template.template_name} sample`}
                       className="h-44 w-full rounded-xl object-contain sm:h-48 md:h-60"
+                      tone="store"
                     />
                     <div>
                       {facts.length > 0 && (

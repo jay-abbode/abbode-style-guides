@@ -7,13 +7,14 @@ import {
   getRules,
 } from "@/lib/sheets";
 import { fillTemplate } from "@/lib/rules";
-import { cellImageFor } from "@/lib/assets";
+import { cellImageFor, placementImageFor } from "@/lib/assets";
 import type {
   ProductRow,
   TemplateRow,
   SpecRow,
   PlacementRow,
   ResolvedPlacement,
+  CellImage,
   MergedCell,
   StoreOffer,
 } from "@/lib/types";
@@ -31,24 +32,92 @@ type Channelled = { status?: string; online?: string; in_store?: string };
 const isOnline = (r: Channelled) => isActive(r) && !no(r.online ?? "");
 const isInStore = (r: Channelled) => isActive(r) && !no(r.in_store ?? "");
 
-/** Turn a cell's placement_id into something renderable: "Centered", or the
+/** Turn one placement_id into something renderable: "Centered", or the
  *  free-text description. Returns null when nothing is set. */
-function resolvePlacement(
+function resolveOne(
   placementId: string,
   placements: PlacementRow[],
 ): ResolvedPlacement | null {
-  const p = placements.find((x) => x.placement_id === (placementId ?? "").trim());
+  const id = (placementId ?? "").trim();
+  const p = placements.find((x) => x.placement_id === id);
   if (!p) return null;
   const image = (p.image ?? "").trim();
   const hasOffsets =
     (p.x_in ?? "").trim() !== "" && (p.y_in ?? "").trim() !== "";
-  if (yes(p.centered))
-    return { centered: true, positioned: true, text: "Centered", image };
   const text = (p.description ?? "").trim();
+  const label = (text.split(/[,.\n]/)[0] ?? "").trim();
+  if (yes(p.centered))
+    return { placement_id: id, centered: true, positioned: true, text: text || "Centered", label: label || "Centered", image };
   // A placement with offsets from the placement tool is positioned even when
   // nobody has written a description for it yet.
   if (!text && !hasOffsets) return null;
-  return { centered: false, positioned: hasOffsets, text, image };
+  return { placement_id: id, centered: false, positioned: hasOffsets, text, label, image };
+}
+
+/** A Matrix placement_id can name several placements ("sweater-cuff-p1;
+ *  sweater-cuff-p2") when a cell is shown from more than one side. */
+function resolvePlacements(
+  field: string,
+  placements: PlacementRow[],
+): ResolvedPlacement[] {
+  return (field ?? "")
+    .split(/[;,]/)
+    .map((id) => resolveOne(id, placements))
+    .filter((x): x is ResolvedPlacement => Boolean(x));
+}
+
+/** The single-placement view of a cell, kept for the Placement fact line:
+ *  one placement as is, several joined. */
+function resolvePlacement(
+  field: string,
+  placements: PlacementRow[],
+): ResolvedPlacement | null {
+  const list = resolvePlacements(field, placements);
+  if (list.length === 0) return null;
+  if (list.length === 1) return list[0];
+  return {
+    placement_id: list.map((p) => p.placement_id).join("; "),
+    centered: list.every((p) => p.centered),
+    positioned: list.some((p) => p.positioned),
+    text: list.map((p) => p.text).join("; "),
+    label: list.map((p) => p.label).join("; "),
+    image: list[0].image,
+  };
+}
+
+/** Overlay images for a cell: one per positioned placement. A cell with one
+ *  placement uses <product>__<spec>.png; with several, <placement>__<spec>.png
+ *  for each, captioned so the sides read side by side. */
+function cellImagesFor(
+  productId: string,
+  specId: string,
+  list: ResolvedPlacement[],
+): CellImage[] {
+  const positioned = list.filter((p) => p.positioned);
+  if (positioned.length === 0) return [];
+  if (list.length === 1)
+    return [{ src: cellImageFor(productId, specId), caption: "" }];
+  return positioned.map((p) => ({
+    src: placementImageFor(p.placement_id, specId),
+    caption: p.label,
+  }));
+}
+
+/** Blank item images for a product page: the placements' own images side by
+ *  side when they differ (a cuff shown from the top and the bottom),
+ *  otherwise the product image alone. */
+function productImagesFor(
+  product: ProductRow,
+  placements: PlacementRow[],
+): CellImage[] {
+  const own = placements
+    .filter((p) => p.product_id === product.product_id)
+    .map((p) => ({ src: (p.image ?? "").trim(), caption: ((p.description ?? "").split(/[,.\n]/)[0] ?? "").trim() }))
+    .filter((p) => p.src);
+  const distinct = own.filter((p, i) => own.findIndex((q) => q.src === p.src) === i);
+  if (distinct.length >= 2) return distinct;
+  const img = (product.image ?? "").trim();
+  return img ? [{ src: img, caption: "" }] : [];
 }
 
 /** A cell's character limit: its own value when set, otherwise the spec's
@@ -100,10 +169,13 @@ export async function getProductPage(productId: string) {
       const charLimit = limitFor(m.char_limit, spec);
       const maxWidth = (m.max_width ?? "").trim();
       const ctx = mergedContext(product, spec, charLimit, maxWidth);
+      const list = resolvePlacements(m.placement_id, placements);
       return {
         template,
         spec,
         placement: resolvePlacement(m.placement_id, placements),
+        placements: list,
+        cell_images: cellImagesFor(product.product_id, spec.spec_id, list),
         char_limit: charLimit,
         max_width: maxWidth,
         live: yes(m.live),
@@ -112,7 +184,7 @@ export async function getProductPage(productId: string) {
     })
     .filter((x): x is NonNullable<typeof x> => Boolean(x));
 
-  return { product, offered };
+  return { product, offered, product_images: productImagesFor(product, placements) };
 }
 
 /** Templates grouped with their specs. */
@@ -221,11 +293,14 @@ export async function getMergedCell(
   const charLimit = limitFor(m.char_limit, spec);
   const maxWidth = (m.max_width ?? "").trim();
   const ctx = mergedContext(product, spec, charLimit, maxWidth);
+  const list = resolvePlacements(m.placement_id, placements);
   return {
     product,
     template,
     spec,
     placement: resolvePlacement(m.placement_id, placements),
+    placements: list,
+    cell_images: cellImagesFor(product.product_id, spec.spec_id, list),
     char_limit: charLimit,
     max_width: maxWidth,
     live: yes(m.live),
@@ -353,6 +428,7 @@ export async function getStoreProductPage(productId: string) {
       const maxWidth = (m.max_width ?? "").trim();
       const ctx = spec ? mergedContext(product, spec, charLimit, maxWidth) : {};
       const placement = resolvePlacement(m.placement_id, placements);
+      const list = resolvePlacements(m.placement_id, placements);
       return {
         template,
         price: formatPrice(m.price),
@@ -361,6 +437,7 @@ export async function getStoreProductPage(productId: string) {
           spec && placement?.positioned
             ? cellImageFor(product.product_id, spec.spec_id)
             : null,
+        cell_images: spec ? cellImagesFor(product.product_id, spec.spec_id, list) : [],
         chars_per_line: (spec?.chars_per_line ?? "").trim(),
         max_lines: (spec?.max_lines ?? "").trim(),
         char_limit: charLimit,
@@ -371,5 +448,5 @@ export async function getStoreProductPage(productId: string) {
     })
     .filter((x): x is StoreOffer => Boolean(x));
 
-  return { product, offers };
+  return { product, offers, product_images: productImagesFor(product, placements) };
 }

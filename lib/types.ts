@@ -98,12 +98,23 @@ export interface RuleRow {
 
 /** A placement resolved for display: either "Centered" or its description. */
 export interface ResolvedPlacement {
+  placement_id: string;
   centered: boolean;
   /** True when the overlay position is known: centered, or offsets filled in.
    *  Cells on unpositioned placements show the spec sample, not the overlay. */
   positioned: boolean;
   text: string;
+  /** Short caption for side-by-side images: the description up to its first
+   *  comma or full stop ("Top of wrist"). */
+  label: string;
   image: string;
+}
+
+/** One image of a cell. A cell with several placements (a Matrix
+ *  placement_id of "a; b") shows one image per placement, side by side. */
+export interface CellImage {
+  src: string;
+  caption: string;
 }
 
 // A single joined product x template cell, ready to render.
@@ -112,6 +123,9 @@ export interface MergedCell {
   template: TemplateRow;
   spec: SpecRow;
   placement: ResolvedPlacement | null;
+  placements: ResolvedPlacement[];
+  /** Overlay per positioned placement; empty when nothing is positioned. */
+  cell_images: CellImage[];
   char_limit: string;
   max_width: string;
   live: boolean;
@@ -125,6 +139,8 @@ export interface StoreOffer {
   sample_image: string | null;
   /** Overlay of the spec on the product, only when its placement is positioned. */
   cell_image: string | null;
+  /** One overlay per positioned placement, side by side when there are several. */
+  cell_images: CellImage[];
   chars_per_line: string;
   max_lines: string;
   char_limit: string;

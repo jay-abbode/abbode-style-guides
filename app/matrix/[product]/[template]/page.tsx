@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getMergedCell, sampleImageFor } from "@/lib/data";
-import { assetUrl, cellImageFor } from "@/lib/assets";
-import { AssetImage } from "@/components/AssetImage";
+import { assetUrl } from "@/lib/assets";
+import { CellImages } from "@/components/CellImages";
 import {
   PageShell,
   Overline,
@@ -23,7 +23,7 @@ export default async function MergedCellPage({
 }) {
   const cell = await getMergedCell(params.product, params.template);
   if (!cell) notFound();
-  const { product, template, spec, placement, char_limit, max_width, rules } =
+  const { product, template, spec, placement, cell_images, char_limit, max_width, rules } =
     cell;
   const deviates = (product.deviates ?? "").toLowerCase().trim() === "yes";
 
@@ -41,13 +41,9 @@ export default async function MergedCellPage({
         <DownloadPDF label="Download guide" />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[220px,1fr]">
-        <AssetImage
-          src={
-            placement?.positioned
-              ? assetUrl(cellImageFor(product.product_id, spec.spec_id))
-              : null
-          }
+      <div className={`mt-6 grid grid-cols-1 gap-6 ${cell_images.length > 1 ? "md:grid-cols-[440px,1fr]" : "md:grid-cols-[220px,1fr]"}`}>
+        <CellImages
+          images={cell_images}
           fallbackSrc={assetUrl(sampleImageFor(spec) ?? undefined)}
           alt={`${template.template_name} sample`}
           className="h-48 w-full object-contain"
