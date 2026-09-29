@@ -22,7 +22,8 @@ export async function GET(
     const drive = getDriveClient();
     const list = await drive.files.list({
       q: `name = '${name.replace(/'/g, "\\'")}' and '${ASSETS_FOLDER_ID}' in parents and trashed = false`,
-      fields: "files(id, mimeType)",
+      fields: "files(id, mimeType, md5Checksum, modifiedTime)",
+      orderBy: "modifiedTime desc",
       pageSize: 1,
       supportsAllDrives: true,
       includeItemsFromAllDrives: true,
@@ -38,10 +39,17 @@ export async function GET(
     const ext = name.split(".").pop()?.toLowerCase() ?? "";
     const contentType =
       file.mimeType || TYPES[ext] || "application/octet-stream";
+    // The ETag follows the Drive file, so a replaced upload shows up on the
+    // next load instead of after a cache window.
+    const etag = `"${file.md5Checksum ?? file.modifiedTime ?? file.id}"`;
+    if (_req.headers.get("if-none-match") === etag) {
+      return new NextResponse(null, { status: 304, headers: { ETag: etag } });
+    }
     return new NextResponse(Buffer.from(media.data as ArrayBuffer), {
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "public, max-age=300",
+        ETag: etag,
+        "Cache-Control": "private, no-cache",
       },
     });
   } catch (err) {

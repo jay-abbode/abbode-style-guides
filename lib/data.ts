@@ -45,9 +45,10 @@ function resolvePlacement(
   if (yes(p.centered))
     return { centered: true, positioned: true, text: "Centered", image };
   const text = (p.description ?? "").trim();
-  return text
-    ? { centered: false, positioned: hasOffsets, text, image }
-    : null;
+  // A placement with offsets from the placement tool is positioned even when
+  // nobody has written a description for it yet.
+  if (!text && !hasOffsets) return null;
+  return { centered: false, positioned: hasOffsets, text, image };
 }
 
 /** A cell's character limit: its own value when set, otherwise the spec's
