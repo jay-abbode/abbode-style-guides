@@ -29,9 +29,7 @@ export default async function MergedCellPage({
 
   return (
     <PageShell back={{ href: "/matrix", label: "Matrix" }}>
-      <Overline>
-        {product.product_name} · {template.template_name}
-      </Overline>
+      <Overline>Cell guide</Overline>
       <GuideTitle>
         {template.template_name} {product.product_name}
       </GuideTitle>
@@ -59,12 +57,12 @@ export default async function MergedCellPage({
                   label: "Icons",
                   value:
                     spec.icon_count && spec.icon_count !== "0"
-                      ? `${spec.icon_count} · ${spec.icon_size}`
+                      ? `${spec.icon_count} × ${spec.icon_size}`
                       : "",
                 },
                 { label: "Arrangement", value: spec.arrangement },
                 { label: "Spacing", value: spec.spacing },
-                { label: "Max text width", value: max_width },
+                { label: "Max width", value: max_width },
               ]}
             />
             {rules.length > 0 && (
@@ -91,10 +89,10 @@ export default async function MergedCellPage({
 
       <div className="no-print mt-10 flex flex-wrap gap-3">
         <LinkButton href={`/templates/${spec.spec_id}`}>
-          View spec sheet
+          Spec sheet
         </LinkButton>
         <LinkButton href={`/products/${product.product_id}`}>
-          View product
+          Product guide
         </LinkButton>
       </div>
     </PageShell>

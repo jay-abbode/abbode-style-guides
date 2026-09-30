@@ -84,12 +84,12 @@ export default async function ProductPage({
                         label: "Icons",
                         value:
                           spec.icon_count && spec.icon_count !== "0"
-                            ? `${spec.icon_count} · ${spec.icon_size}`
+                            ? `${spec.icon_count} × ${spec.icon_size}`
                             : "",
                       },
                       { label: "Arrangement", value: spec.arrangement },
                       { label: "Spacing", value: spec.spacing },
-                      { label: "Max text width", value: max_width },
+                      { label: "Max width", value: max_width },
                       {
                         label: "Placement",
                         value: placement ? placement.text : "",
@@ -106,12 +106,12 @@ export default async function ProductPage({
 
                 <div className="no-print mt-5 flex flex-wrap gap-3">
                   <LinkButton href={`/templates/${spec.spec_id}`}>
-                    View spec sheet
+                    Spec sheet
                   </LinkButton>
                   <LinkButton
                     href={`/matrix/${product.product_id}/${template.template_id}`}
                   >
-                    View merged cell
+                    Cell guide
                   </LinkButton>
                 </div>
               </div>

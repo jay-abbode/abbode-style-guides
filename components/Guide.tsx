@@ -54,14 +54,12 @@ export function GuideTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Shown only when an item deviates; standard sizing needs no badge. */
 export function DeviationTag({ deviates }: { deviates: boolean }) {
-  return deviates ? (
+  if (!deviates) return null;
+  return (
     <span className="font-ui mt-3 inline-block rounded-full bg-pink-soft px-3 py-1 text-xs font-semibold text-cherry">
-      Deviates from standard sizing
-    </span>
-  ) : (
-    <span className="font-ui mt-3 inline-block rounded-full bg-sage/30 px-3 py-1 text-xs font-semibold text-olive">
-      Does not deviate from standard sizing
+      Non-standard sizing
     </span>
   );
 }

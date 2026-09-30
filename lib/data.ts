@@ -122,8 +122,20 @@ function productImagesFor(
 
 /** A cell's character limit: its own value when set, otherwise the spec's
  *  default. Lets one spec-level value cover every surface that uses it. */
-const limitFor = (cell: string, spec: { char_limit?: string }) =>
-  (cell ?? "").trim() || (spec.char_limit ?? "").trim();
+/** Character limit for a cell: the cell's own value, else the spec's, else
+ *  chars per line x max lines when both are numeric. */
+export const limitFor = (
+  cell: string,
+  spec: { char_limit?: string; chars_per_line?: string; max_lines?: string },
+) => {
+  const own = (cell ?? "").trim() || (spec.char_limit ?? "").trim();
+  if (own) return own;
+  const a = Number(spec.chars_per_line);
+  const b = Number(spec.max_lines);
+  return Number.isInteger(a) && Number.isInteger(b) && a > 0 && b > 0
+    ? String(a * b)
+    : "";
+};
 
 /** Resolve the Rules a spec references (its overflow_rule, comma-separated ok),
  *  filling each rule's braces from the merged context. */
