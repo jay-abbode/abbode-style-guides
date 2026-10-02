@@ -94,6 +94,8 @@ export interface RuleRow {
   rule_id: string;
   rule_name: string;
   rule_text: string;
+  /** Store View wording: states the rule rather than instructing. Blank = nothing shown in the store. */
+  store_text?: string;
 }
 
 /** A placement resolved for display: either "Centered" or its description. */

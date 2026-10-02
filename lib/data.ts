@@ -142,7 +142,8 @@ export const limitFor = (
 function resolveRules(
   spec: SpecRow,
   ctx: Record<string, string>,
-  rules: { rule_id: string; rule_name: string; rule_text: string }[],
+  rules: { rule_id: string; rule_name: string; rule_text: string; store_text?: string }[],
+  audience: "guide" | "store" = "guide",
 ) {
   const ids = (spec.overflow_rule ?? "")
     .split(",")
@@ -152,8 +153,10 @@ function resolveRules(
     .map((id) => rules.find((r) => r.rule_id === id))
     .filter((r): r is NonNullable<typeof r> => Boolean(r))
     .flatMap((r) =>
-      // One bullet per line of rule_text (Alt+Enter in the sheet).
-      fillTemplate(r.rule_text, ctx)
+      // Guides read rule_text (tells the embroiderer what to do); the Store
+      // View reads store_text (states the rule). A rule with no store_text
+      // shows nothing in the store. One bullet per line (Alt+Enter in the sheet).
+      fillTemplate(audience === "store" ? (r.store_text ?? "") : r.rule_text, ctx)
         .split(/\r?\n/)
         .map((line) => line.trim())
         .filter(Boolean)
@@ -462,7 +465,7 @@ export async function getStoreProductPage(productId: string) {
         char_limit: charLimit,
         arrangement: (spec?.arrangement ?? "").trim(),
         placement,
-        rules: spec ? resolveRules(spec, ctx, rules) : [],
+        rules: spec ? resolveRules(spec, ctx, rules, "store") : [],
       };
     })
     .filter((x): x is StoreOffer => Boolean(x));
