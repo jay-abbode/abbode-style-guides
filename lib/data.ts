@@ -12,6 +12,7 @@ import type {
   ProductRow,
   TemplateRow,
   SpecRow,
+  MatrixRow,
   PlacementRow,
   ResolvedPlacement,
   CellImage,
@@ -137,6 +138,22 @@ export const limitFor = (
     : "";
 };
 
+/** The spec as it applies to one cell: text size, chars per line and max
+ *  lines live at the intersection (Matrix) when set there, and fall back to
+ *  the spec's own values when the cell is blank. */
+function cellSpec(spec: SpecRow, m: MatrixRow): SpecRow {
+  const pick = (cell: string | undefined, own: string) => {
+    const v = (cell ?? "").trim();
+    return v ? v : own;
+  };
+  return {
+    ...spec,
+    text_size: pick(m.text_size, spec.text_size),
+    chars_per_line: pick(m.chars_per_line, spec.chars_per_line),
+    max_lines: pick(m.max_lines, spec.max_lines),
+  };
+}
+
 /** Resolve the Rules a spec references (its overflow_rule, comma-separated ok),
  *  filling each rule's braces from the merged context. */
 function resolveRules(
@@ -185,9 +202,10 @@ export async function getProductPage(productId: string) {
   const offered = matrix
     .filter((m) => m.product_id === productId && isActive(m))
     .map((m) => {
-      const spec = specs.find((s) => s.spec_id === m.spec_id);
+      const base = specs.find((s) => s.spec_id === m.spec_id);
       const template = templates.find((t) => t.template_id === m.template_id);
-      if (!spec || !template || !isOnline(template)) return null;
+      if (!base || !template || !isOnline(template)) return null;
+      const spec = cellSpec(base, m);
       const charLimit = limitFor(m.char_limit, spec);
       const maxWidth = (m.max_width ?? "").trim();
       const ctx = mergedContext(product, spec, charLimit, maxWidth);
@@ -308,7 +326,8 @@ export async function getMergedCell(
   if (!m) return null;
   const product = products.find((p) => p.product_id === productId);
   const template = templates.find((t) => t.template_id === templateId);
-  const spec = specs.find((s) => s.spec_id === m.spec_id);
+  const base = specs.find((s) => s.spec_id === m.spec_id);
+  const spec = base ? cellSpec(base, m) : undefined;
   if (!product || !isOnline(product) || !template || !isOnline(template) || !spec)
     return null;
 
@@ -443,7 +462,8 @@ export async function getStoreProductPage(productId: string) {
   const offers: StoreOffer[] = matrix
     .filter((m) => m.product_id === productId && isActive(m) && yes(m.live))
     .map((m) => {
-      const spec = specs.find((s) => s.spec_id === m.spec_id);
+      const base = specs.find((s) => s.spec_id === m.spec_id);
+      const spec = base ? cellSpec(base, m) : undefined;
       const template = templates.find((t) => t.template_id === m.template_id);
       if (!template || !isInStore(template)) return null;
       const charLimit = spec ? limitFor(m.char_limit, spec) : (m.char_limit ?? "").trim();

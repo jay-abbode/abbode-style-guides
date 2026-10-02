@@ -69,6 +69,11 @@ export interface MatrixRow {
   /** Max design width for this product x template cell. Width lives at the
    *  intersection, not on the spec. */
   max_width: string;
+  /** Cell-level text limits (Oct 2026). When set they override the spec's
+   *  values for this product x template; blank falls back to the spec. */
+  text_size?: string;
+  chars_per_line?: string;
+  max_lines?: string;
   /** Retail price for this product x template, as displayed in Store View.
    *  Blank renders as the placeholder. */
   price: string;
