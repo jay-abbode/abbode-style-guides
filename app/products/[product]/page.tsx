@@ -13,6 +13,7 @@ import {
   LinkButton,
 } from "@/components/Guide";
 import { DownloadPDF } from "@/components/DownloadPDF";
+import { imageSizeFor, guideBox } from "@/components/imageSize";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function ProductPage({
   if (!data) notFound();
   const { product, offered, product_images } = data;
   const deviates = (product.deviates ?? "").toLowerCase().trim() === "yes";
+  const box = guideBox[imageSizeFor(product.product_id)];
 
   return (
     <PageShell back={{ href: "/products", label: "Products" }}>
@@ -36,11 +38,11 @@ export default async function ProductPage({
         <DownloadPDF label="Download guide" />
       </div>
 
-      <div className={`mt-6 grid grid-cols-1 gap-6 ${product_images.length > 1 ? "md:grid-cols-[440px,1fr]" : "md:grid-cols-[220px,1fr]"}`}>
+      <div className={`mt-6 grid grid-cols-1 gap-6 ${product_images.length > 1 ? box.wide : box.cols}`}>
         <CellImages
           images={product_images}
           alt={product.product_name}
-          className="h-48 w-full object-contain"
+          className={box.img}
         />
         <div>
           {product.item_notes && (

@@ -13,6 +13,7 @@ import {
   LinkButton,
 } from "@/components/Guide";
 import { DownloadPDF } from "@/components/DownloadPDF";
+import { imageSizeFor, guideBox } from "@/components/imageSize";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ export default async function MergedCellPage({
   const { product, template, spec, placement, cell_images, char_limit, max_width, rules } =
     cell;
   const deviates = (product.deviates ?? "").toLowerCase().trim() === "yes";
+  const box = guideBox[imageSizeFor(product.product_id)];
 
   return (
     <PageShell back={{ href: "/matrix", label: "Matrix" }}>
@@ -39,12 +41,12 @@ export default async function MergedCellPage({
         <DownloadPDF label="Download guide" />
       </div>
 
-      <div className={`mt-6 grid grid-cols-1 gap-6 ${cell_images.length > 1 ? "md:grid-cols-[440px,1fr]" : "md:grid-cols-[220px,1fr]"}`}>
+      <div className={`mt-6 grid grid-cols-1 gap-6 ${cell_images.length > 1 ? box.wide : box.cols}`}>
         <CellImages
           images={cell_images}
           fallbackSrc={assetUrl(sampleImageFor(spec) ?? undefined)}
           alt={`${template.template_name} sample`}
-          className="h-48 w-full object-contain"
+          className={box.img}
         />
         <div className="space-y-8">
           <Section title="Design">
