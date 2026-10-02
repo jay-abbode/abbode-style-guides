@@ -120,8 +120,8 @@ export default async function StoreProductPage({
                       )}
                       {o.rules.length > 0 && (
                         <ul className="font-sans mt-4 space-y-2 text-[15px] leading-relaxed text-plum md:text-[16px]">
-                          {o.rules.map((r) => (
-                            <li key={r.name} className="flex gap-2.5">
+                          {o.rules.map((r, i) => (
+                            <li key={`${r.name}-${i}`} className="flex gap-2.5">
                               <span
                                 aria-hidden
                                 className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-cherry"

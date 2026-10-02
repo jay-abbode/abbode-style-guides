@@ -151,7 +151,14 @@ function resolveRules(
   return ids
     .map((id) => rules.find((r) => r.rule_id === id))
     .filter((r): r is NonNullable<typeof r> => Boolean(r))
-    .map((r) => ({ name: r.rule_name, text: fillTemplate(r.rule_text, ctx) }));
+    .flatMap((r) =>
+      // One bullet per line of rule_text (Alt+Enter in the sheet).
+      fillTemplate(r.rule_text, ctx)
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((text) => ({ name: r.rule_name, text })),
+    );
 }
 
 export async function listProducts(): Promise<ProductRow[]> {
