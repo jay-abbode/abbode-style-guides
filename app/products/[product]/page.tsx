@@ -62,7 +62,7 @@ export default async function ProductPage({
         ) : (
           <div className="mt-4 space-y-6">
             {offered.map(
-              ({ template, spec, placement, char_limit, max_width, rules }) => (
+              ({ template, spec, placement, max_width, rules }) => (
               <div
                 key={spec.spec_id}
                 className="rounded-2xl border border-cream-200 bg-white p-6"
@@ -80,8 +80,9 @@ export default async function ProductPage({
                   <FactList
                     facts={[
                       { label: "Offering", value: spec.offering },
-                      { label: "Character limit", value: char_limit },
                       { label: "Text size", value: spec.text_size },
+                      { label: "Characters per line", value: spec.chars_per_line },
+                      { label: "Max lines", value: spec.max_lines },
                       {
                         label: "Icons",
                         value:

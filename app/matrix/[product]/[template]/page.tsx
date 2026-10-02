@@ -24,7 +24,7 @@ export default async function MergedCellPage({
 }) {
   const cell = await getMergedCell(params.product, params.template);
   if (!cell) notFound();
-  const { product, template, spec, placement, cell_images, char_limit, max_width, rules } =
+  const { product, template, spec, placement, cell_images, max_width, rules } =
     cell;
   const deviates = (product.deviates ?? "").toLowerCase().trim() === "yes";
   const box = guideBox[imageSizeFor(product.product_id)];
@@ -53,8 +53,9 @@ export default async function MergedCellPage({
             <FactList
               facts={[
                 { label: "Offering", value: spec.offering },
-                { label: "Character limit", value: char_limit },
                 { label: "Text size", value: spec.text_size },
+                { label: "Characters per line", value: spec.chars_per_line },
+                { label: "Max lines", value: spec.max_lines },
                 {
                   label: "Icons",
                   value:
