@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSpecPage, sampleImageFor, limitFor } from "@/lib/data";
+import { getSpecPage, sampleImageFor } from "@/lib/data";
 import { assetUrl } from "@/lib/assets";
 import { AssetImage } from "@/components/AssetImage";
 import {
@@ -53,9 +53,6 @@ export default async function SpecPage({
               },
               { label: "Arrangement", value: spec.arrangement },
               { label: "Spacing", value: spec.spacing },
-              { label: "Characters per line", value: spec.chars_per_line },
-              { label: "Max lines", value: spec.max_lines },
-              { label: "Character limit", value: limitFor("", spec) },
             ]}
           />
         </Section>

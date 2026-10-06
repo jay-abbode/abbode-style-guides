@@ -121,36 +121,31 @@ function productImagesFor(
   return img ? [{ src: img, caption: "" }] : [];
 }
 
-/** A cell's character limit: its own value when set, otherwise the spec's
- *  default. Lets one spec-level value cover every surface that uses it. */
-/** Character limit for a cell: the cell's own value, else the spec's, else
- *  chars per line x max lines when both are numeric. */
+/** Character limit for a cell, from the Matrix row only: its char_limit when
+ *  set, else chars per line x max lines when both cell values are numeric,
+ *  else blank. Specs carry no counts. */
 export const limitFor = (
-  cell: string,
-  spec: { char_limit?: string; chars_per_line?: string; max_lines?: string },
+  m: Pick<MatrixRow, "char_limit" | "chars_per_line" | "max_lines">,
 ) => {
-  const own = (cell ?? "").trim() || (spec.char_limit ?? "").trim();
+  const own = (m.char_limit ?? "").trim();
   if (own) return own;
-  const a = Number(spec.chars_per_line);
-  const b = Number(spec.max_lines);
+  const a = Number((m.chars_per_line ?? "").trim());
+  const b = Number((m.max_lines ?? "").trim());
   return Number.isInteger(a) && Number.isInteger(b) && a > 0 && b > 0
     ? String(a * b)
     : "";
 };
 
-/** The spec as it applies to one cell: text size, chars per line and max
- *  lines live at the intersection (Matrix) when set there, and fall back to
- *  the spec's own values when the cell is blank. */
+/** The spec as it applies to one cell. Text size comes from the cell when set
+ *  there, else from the spec. Characters per line and max lines come from the
+ *  cell only; a blank cell shows nothing, never the spec. */
 function cellSpec(spec: SpecRow, m: MatrixRow): SpecRow {
-  const pick = (cell: string | undefined, own: string) => {
-    const v = (cell ?? "").trim();
-    return v ? v : own;
-  };
+  const v = (cell: string | undefined) => (cell ?? "").trim();
   return {
     ...spec,
-    text_size: pick(m.text_size, spec.text_size),
-    chars_per_line: pick(m.chars_per_line, spec.chars_per_line),
-    max_lines: pick(m.max_lines, spec.max_lines),
+    text_size: v(m.text_size) || spec.text_size,
+    chars_per_line: v(m.chars_per_line),
+    max_lines: v(m.max_lines),
   };
 }
 
@@ -206,7 +201,7 @@ export async function getProductPage(productId: string) {
       const template = templates.find((t) => t.template_id === m.template_id);
       if (!base || !template || !isOnline(template)) return null;
       const spec = cellSpec(base, m);
-      const charLimit = limitFor(m.char_limit, spec);
+      const charLimit = limitFor(m);
       const maxWidth = (m.max_width ?? "").trim();
       const ctx = mergedContext(product, spec, charLimit, maxWidth);
       const list = resolvePlacements(m.placement_id, placements);
@@ -273,11 +268,10 @@ export async function getSpecPage(specId: string) {
  *  Returns a serializable cells map keyed by `${product_id}|${template_id}`
  *  so it can be handed to a client component. */
 export async function getMatrixGrid() {
-  const [products, templates, matrix, specs] = await Promise.all([
+  const [products, templates, matrix] = await Promise.all([
     getProducts(),
     getTemplates(),
     getMatrix(),
-    getSpecs(),
   ]);
   const rows = products.filter(isOnline).map((p) => ({
     product_id: p.product_id,
@@ -297,10 +291,7 @@ export async function getMatrixGrid() {
       offered: true,
       live: yes(m.live),
       spec_id: m.spec_id,
-      char_limit: limitFor(
-        m.char_limit,
-        specs.find((s) => s.spec_id === m.spec_id) ?? {},
-      ),
+      char_limit: limitFor(m),
     };
   }
   return { products: rows, templates: cols, cells };
@@ -331,7 +322,7 @@ export async function getMergedCell(
   if (!product || !isOnline(product) || !template || !isOnline(template) || !spec)
     return null;
 
-  const charLimit = limitFor(m.char_limit, spec);
+  const charLimit = limitFor(m);
   const maxWidth = (m.max_width ?? "").trim();
   const ctx = mergedContext(product, spec, charLimit, maxWidth);
   const list = resolvePlacements(m.placement_id, placements);
@@ -466,7 +457,7 @@ export async function getStoreProductPage(productId: string) {
       const spec = base ? cellSpec(base, m) : undefined;
       const template = templates.find((t) => t.template_id === m.template_id);
       if (!template || !isInStore(template)) return null;
-      const charLimit = spec ? limitFor(m.char_limit, spec) : (m.char_limit ?? "").trim();
+      const charLimit = limitFor(m);
       const maxWidth = (m.max_width ?? "").trim();
       const ctx = spec ? mergedContext(product, spec, charLimit, maxWidth) : {};
       const placement = resolvePlacement(m.placement_id, placements);

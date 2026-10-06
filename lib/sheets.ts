@@ -63,7 +63,11 @@ export async function getTemplates(): Promise<TemplateRow[]> {
 }
 
 export async function getSpecs(): Promise<SpecRow[]> {
-  return (await cachedTab("Specs")) as unknown as SpecRow[];
+  const rows = (await cachedTab("Specs")) as unknown as SpecRow[];
+  // Character counts exist only at the product x template intersection
+  // (Matrix). Anything the Specs tab still carries in these columns is
+  // dropped here so no spec-level count can reach a guide.
+  return rows.map((s) => ({ ...s, chars_per_line: "", max_lines: "", char_limit: "" }));
 }
 
 export async function getMatrix(): Promise<MatrixRow[]> {
