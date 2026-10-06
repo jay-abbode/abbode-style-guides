@@ -203,7 +203,8 @@ export async function getProductPage(productId: string) {
       const spec = cellSpec(base, m);
       const charLimit = limitFor(m);
       const maxWidth = (m.max_width ?? "").trim();
-      const ctx = mergedContext(product, spec, charLimit, maxWidth);
+      const maxHeight = (m.max_height ?? "").trim();
+      const ctx = mergedContext(product, spec, charLimit, maxWidth, maxHeight);
       const list = resolvePlacements(m.placement_id, placements);
       return {
         template,
@@ -213,6 +214,7 @@ export async function getProductPage(productId: string) {
         cell_images: cellImagesFor(product.product_id, spec.spec_id, list),
         char_limit: charLimit,
         max_width: maxWidth,
+        max_height: maxHeight,
         live: yes(m.live),
         rules: resolveRules(spec, ctx, rules),
       };
@@ -324,7 +326,8 @@ export async function getMergedCell(
 
   const charLimit = limitFor(m);
   const maxWidth = (m.max_width ?? "").trim();
-  const ctx = mergedContext(product, spec, charLimit, maxWidth);
+  const maxHeight = (m.max_height ?? "").trim();
+  const ctx = mergedContext(product, spec, charLimit, maxWidth, maxHeight);
   const list = resolvePlacements(m.placement_id, placements);
   return {
     product,
@@ -335,6 +338,7 @@ export async function getMergedCell(
     cell_images: cellImagesFor(product.product_id, spec.spec_id, list),
     char_limit: charLimit,
     max_width: maxWidth,
+    max_height: maxHeight,
     live: yes(m.live),
     rules: resolveRules(spec, ctx, rules),
   };
@@ -347,12 +351,14 @@ function mergedContext(
   spec: SpecRow,
   charLimit: string,
   maxWidth: string,
+  maxHeight = "",
 ): Record<string, string> {
   return {
     ...(product ?? {}),
     ...spec,
     char_limit: charLimit,
     max_width: maxWidth,
+    max_height: maxHeight,
   } as Record<string, string>;
 }
 
@@ -459,7 +465,7 @@ export async function getStoreProductPage(productId: string) {
       if (!template || !isInStore(template)) return null;
       const charLimit = limitFor(m);
       const maxWidth = (m.max_width ?? "").trim();
-      const ctx = spec ? mergedContext(product, spec, charLimit, maxWidth) : {};
+      const ctx = spec ? mergedContext(product, spec, charLimit, maxWidth, (m.max_height ?? "").trim()) : {};
       const placement = resolvePlacement(m.placement_id, placements);
       const list = resolvePlacements(m.placement_id, placements);
       return {

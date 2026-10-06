@@ -69,6 +69,9 @@ export interface MatrixRow {
   /** Max design width for this product x template cell. Width lives at the
    *  intersection, not on the spec. */
   max_width: string;
+  /** Max design height for this product x template cell, same rule as width.
+   *  Blank on cells that have no height limit. */
+  max_height?: string;
   /** Text size for this product x template; blank falls back to the spec. */
   text_size?: string;
   /** Character counts for this product x template. They live here only;
@@ -136,6 +139,7 @@ export interface MergedCell {
   cell_images: CellImage[];
   char_limit: string;
   max_width: string;
+  max_height: string;
   live: boolean;
   rules: { name: string; text: string }[];
 }

@@ -24,7 +24,7 @@ export default async function MergedCellPage({
 }) {
   const cell = await getMergedCell(params.product, params.template);
   if (!cell) notFound();
-  const { product, template, spec, placement, cell_images, max_width, rules } =
+  const { product, template, spec, placement, cell_images, max_width, max_height, rules } =
     cell;
   const deviates = (product.deviates ?? "").toLowerCase().trim() === "yes";
   const box = guideBox[imageSizeFor(product.product_id)];
@@ -66,6 +66,7 @@ export default async function MergedCellPage({
                 { label: "Arrangement", value: spec.arrangement },
                 { label: "Spacing", value: spec.spacing },
                 { label: "Max width", value: max_width },
+                { label: "Max height", value: max_height },
               ]}
             />
             {rules.length > 0 && (
