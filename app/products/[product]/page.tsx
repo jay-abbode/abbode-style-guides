@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProductPage } from "@/lib/data";
+import { getProductPage, sampleImageFor } from "@/lib/data";
+import { assetUrl } from "@/lib/assets";
 import { CellImages } from "@/components/CellImages";
 import {
   PageShell,
@@ -62,7 +63,7 @@ export default async function ProductPage({
         ) : (
           <div className="mt-4 space-y-6">
             {offered.map(
-              ({ template, spec, placement, max_width, max_height, rules }) => (
+              ({ template, spec, placement, cell_images, max_width, max_height, rules }) => (
               <div
                 key={spec.spec_id}
                 className="rounded-2xl border border-cream-200 bg-white p-6"
@@ -76,7 +77,13 @@ export default async function ProductPage({
                   </span>
                 </div>
 
-                <div className="mt-4">
+                <div className={`mt-4 grid grid-cols-1 gap-6 ${cell_images.length > 1 ? box.wide : box.cols}`}>
+                  <CellImages
+                    images={cell_images}
+                    fallbackSrc={assetUrl(sampleImageFor(spec) ?? undefined)}
+                    alt={`${template.template_name} ${product.product_name}`}
+                    className={box.img}
+                  />
                   <FactList
                     facts={[
                       { label: "Offering", value: spec.offering },
